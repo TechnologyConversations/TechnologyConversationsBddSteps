@@ -1,11 +1,26 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
+group = 'com.technologyconversations'
+version = '0.1-SNAPSHOT'
+description = 'Technology Conversations BDD (Behaviour Driven Development) Steps'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
-version = '1.0'
 
 repositories {
     mavenCentral()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'bdd-steps'
+            from components.java
+        }
+    }
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
