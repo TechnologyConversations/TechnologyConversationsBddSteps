@@ -52,7 +52,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'TC BDD Steps'
+                name 'bddsteps'
                 packaging 'jar'
                 description 'Technology Conversations BDD (Behaviour Driven Development) Steps'
                 url 'http://technologyconversations.com/'
