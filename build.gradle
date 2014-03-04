@@ -1,26 +1,14 @@
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 group = 'com.technologyconversations'
-version = '0.1-SNAPSHOT'
-description = 'Technology Conversations BDD (Behaviour Driven Development) Steps'
+version = '0.1'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 repositories {
     mavenCentral()
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'bdd-steps'
-            from components.java
-        }
-    }
-    repositories {
-        mavenCentral()
-    }
 }
 
 dependencies {
@@ -30,4 +18,74 @@ dependencies {
     compile 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.37.1'
     compile 'com.opera:operadriver:1.5'
     compile 'com.github.detro.ghostdriver:phantomjsdriver:1.0.4'
+}
+
+// Maven publish
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'TC BDD Steps'
+                packaging 'jar'
+                description 'Technology Conversations BDD (Behaviour Driven Development) Steps'
+                url 'http://technologyconversations.com/'
+
+                scm {
+                    url 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
+                    connection 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
+                    developerConnection 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'vfarcic'
+                        name 'Viktor Farcic'
+                    }
+                    developer {
+                        id 'agarcia'
+                        name 'Alex Garcia'
+                    }
+                    developer {
+                        id 'jfalguera'
+                        name 'Jordi Falguera'
+                    }
+                }
+            }
+        }
+    }
 }
