@@ -22,6 +22,7 @@ public class WebSteps {
 
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
+    // TODO Add uploadFromClasspath
 
     private final String selectorsInfo = "\nAny CSS selector can be used to locate the element. Most commonly used selectors are:\n" +
             ".myClass: Matches any element with class equal to 'myClass'\n" +
@@ -90,6 +91,18 @@ public class WebSteps {
         findElement(selector).append(value);
     }
 
+    @BddAnnotation(description = "Presses enter key on a specified element" + selectorsInfo)
+    @When("Web user presses the enter key in the element $selector")
+    public void pressEnter(String selector) {
+        findElement(selector).pressEnter();
+    }
+
+    @BddAnnotation(description = "Select an option from dropdown list" + selectorsInfo)
+    @When("Web user selects $text from the dropdown list $selector")
+    public void selectOption(String text, String selector) {
+        findElement(selector).selectOption(text);
+    }
+
     // Then
 
     @BddAnnotation(description = "Verifies that the title of the current page is as expected.")
@@ -101,26 +114,58 @@ public class WebSteps {
     @BddAnnotation(description = "Verifies that the element text is the same as specified." + selectorsInfo)
          @Then("Web element $selector should have text $text")
          public void shouldHaveText(String selector, String text) {
-        $(selector).shouldHave(text(text));
+        findElement(selector).shouldHave(text(text));
     }
 
     @BddAnnotation(description = "Verifies that the element value is the same as specified." + selectorsInfo)
     @Then("Web element $selector should have value $value")
     public void shouldHaveValue(String selector, String value) {
-        $(selector).shouldHave(value(value));
+        findElement(selector).shouldHave(value(value));
     }
 
     @BddAnnotation(description = "Verifies that the element text is NOT the same as specified." + selectorsInfo)
     @Then("Web element $selector should NOT have text $text")
     public void shouldNotHaveText(String selector, String text) {
-        $(selector).shouldNotHave(text(text));
+        findElement(selector).shouldNotHave(text(text));
     }
 
     @BddAnnotation(description = "Verifies that the element value is NOT the same as specified." + selectorsInfo)
     @Then("Web element $selector should NOT have value $value")
     public void shouldNotHaveValue(String selector, String value) {
-        $(selector).shouldNotHave(value(value));
+        findElement(selector).shouldNotHave(value(value));
     }
+
+    @BddAnnotation(description = "Verifies that the text of the selected dropdown list element is the same as text")
+    @Then("Web dropdown list $selector has $text selected")
+    public void shouldHaveSelectedOption(String selector, String text) {
+        findElement(selector).getSelectedOption().shouldHave(text(text));
+    }
+
+    @BddAnnotation(description = "Verifies that the text of the selected dropdown list element is NOT the same as text")
+    @Then("Web dropdown list $selector does NOT have $text selected")
+    public void shouldNotHaveSelectedOption(String selector, String text) {
+        findElement(selector).getSelectedOption().shouldNotHave(text(text));
+    }
+
+    @BddAnnotation(description = "Verifies that the element is visible (appears) and present (exists)")
+    @Then("Web element $selector is visible")
+    public void shouldHaveVisible(String selector) {
+        findElement(selector).shouldHave(visible);
+    }
+
+    @BddAnnotation(description = "Verifies that the element is hidden (not visible, disappeared)")
+    @Then("Web element $selector is visible")
+    public void shouldHaveHidden(String selector) {
+        findElement(selector).shouldHave(hidden);
+    }
+
+    @BddAnnotation(description = "Verifies that the element is present (exists)")
+    @Then("Web element $selector is present")
+    public void shouldHavePresent(String selector) {
+        findElement(selector).shouldHave(present);
+    }
+
+    // Common methods
 
     private SelenideElement findElement(String selector) {
         if (Character.isLetter(selector.charAt(0))) {

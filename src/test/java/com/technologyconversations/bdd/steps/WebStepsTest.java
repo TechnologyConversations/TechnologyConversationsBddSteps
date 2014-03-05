@@ -10,9 +10,17 @@ import java.util.Date;
 
 public class WebStepsTest {
 
+    // TODO Test with all browsers
+
     private WebSteps steps;
     private final String linkId = "#linkId";
     private final String inputId = "#inputId";
+    private final String selectId = "#selectId";
+    private final String invisibleId = "#invisibleId";
+    private final String indexTitle = "BDD Steps Test Index";
+    private final String pageTitle = "BDD Steps Test Page";
+    private final String notSelectedOptionText = "Option 1 Test";
+    private final String selectedOptionText = "Option 2 Test";
 
     @Before
     public void before() {
@@ -42,23 +50,32 @@ public class WebStepsTest {
         Assert.assertTrue((new Date().getTime() - start.getTime()) >= 1000);
     }
 
+    // open
+
     @Test
-    public void openShouldRetrieveSpecifiedUrlUsingIdSelector() {
+    public void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
+        steps.checkTitle(indexTitle);
         steps.clickElement(linkId);
-        steps.checkTitle("BDD Steps Test Page");
+        steps.checkTitle(pageTitle);
     }
 
     @Test
-    public void openShouldRetrieveSpecifiedUrlUsingCssSelector() {
+    public void clickElementShouldUseCssSelectorIfSelectorItStartsWithDot() {
+        steps.checkTitle(indexTitle);
         steps.clickElement(".linkClass");
-        steps.checkTitle("BDD Steps Test Page");
+        steps.checkTitle(pageTitle);
     }
 
+    // clickElement
+
     @Test
-    public void openShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
-        steps.clickElement("linkId");
-        steps.checkTitle("BDD Steps Test Page");
+    public void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
+        steps.checkTitle(indexTitle);
+        steps.clickElement(linkId);
+        steps.checkTitle(pageTitle);
     }
+
+    // shouldHaveTest
 
     @Test
     public void shouldHaveTextShouldPassIfElementTextIsTheSame() {
@@ -70,6 +87,8 @@ public class WebStepsTest {
         steps.shouldHaveText(linkId, "This is non-existent text");
     }
 
+    // shouldHaveValue
+
     @Test
     public void shouldHaveValueShouldPassIfElementTextIsTheSame() {
         steps.shouldHaveValue(inputId, "This is input");
@@ -80,6 +99,8 @@ public class WebStepsTest {
         steps.shouldHaveValue(inputId, "This is non-existent value");
     }
 
+    // shouldNotHaveText
+
     @Test
     public void shouldNotHaveTextShouldPassIfElementTextIsNotTheSame() {
         steps.shouldNotHaveText(linkId, "This is non-existent text");
@@ -89,6 +110,8 @@ public class WebStepsTest {
     public void shouldNotHaveTextShouldFailIfElementTextIsTheSame() {
         steps.shouldNotHaveText(linkId, "This is link");
     }
+
+    // shouldNotHaveValue
 
     @Test
     public void shouldNotHaveValueShouldPassIfElementTextIsNotTheSame() {
@@ -128,6 +151,99 @@ public class WebStepsTest {
         steps.shouldHaveValue(inputId, value1);
         steps.appendElementValue(value2, inputId);
         steps.shouldHaveValue(inputId, value1 + value2);
+    }
+
+    // pressEnter
+
+    @Test
+    public void pressEnterShouldSendEnterKeyToTheSpecifiedElement() {
+        String value1 = "First line";
+        String value2 = "Second line";
+        String textAreaId = "#textAreaId";
+        steps.setElementValue(value1, textAreaId);
+        steps.shouldHaveText(textAreaId, value1);
+        steps.pressEnter(textAreaId);
+        steps.appendElementValue(value2, textAreaId);
+        steps.shouldHaveText(textAreaId, value1 + "\n" + value2);
+    }
+
+    // shouldHaveSelectedOption
+
+    @Test
+    public void shouldHaveSelectedOptionShouldNotFailIfSelectedOptionMatchesText() {
+        steps.shouldHaveSelectedOption(selectId, selectedOptionText);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveSelectedOptionShouldFailIfSelectedOptionDoesNotMatchText() {
+        steps.shouldHaveSelectedOption(selectId, notSelectedOptionText);
+    }
+
+    // shouldHaveSelectedOption
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveSelectedOptionShouldFailIfSelectedOptionMatchesText() {
+        steps.shouldNotHaveSelectedOption(selectId, selectedOptionText);
+    }
+
+    // shouldHaveVisible
+
+    @Test
+    public void shouldHaveVisibleShouldNotFailIfElementIsVisible() {
+        steps.shouldHaveVisible(linkId);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveVisibleShouldFailIfElementIsHidden() {
+        steps.shouldHaveVisible(invisibleId);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveVisibleShouldFailIfElementIsNotPresent() {
+        steps.shouldHaveVisible("#nonExistentId");
+    }
+
+    // shouldHaveHidden
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveHiddenShouldFailIfElementIsVisible() {
+        steps.shouldHaveHidden(linkId);
+    }
+
+    @Test
+    public void shouldHaveHiddenShouldNotFailIfElementIsHidden() {
+        steps.shouldHaveHidden(invisibleId);
+    }
+
+    @Test
+    public void shouldHaveHiddenShouldNotFailIfElementIsNotPresent() {
+        steps.shouldHaveHidden("#nonExistentId");
+    }
+
+    // shouldHavePresent
+
+    @Test
+    public void shouldHavePresentShouldNotFailIfElementIsPresent() {
+        steps.shouldHavePresent(linkId);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHavePresentShouldFailIfElementIsNotPresent() {
+        steps.shouldHavePresent("#nonExistentId");
+    }
+
+    @Test
+    public void shouldHavePresentShouldNotFailIfElementIsNotVisible() {
+        steps.shouldHavePresent(invisibleId);
+    }
+
+    // selectOption
+
+    @Test
+    public void selectOptionShouldSelectDropDownListItem() {
+        steps.shouldHaveSelectedOption(selectId, selectedOptionText);
+        steps.selectOption(notSelectedOptionText, selectId);
+        steps.shouldHaveSelectedOption(selectId, notSelectedOptionText);
     }
 
 }
