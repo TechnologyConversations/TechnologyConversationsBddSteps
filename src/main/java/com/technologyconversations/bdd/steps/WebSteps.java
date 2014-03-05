@@ -5,9 +5,7 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import com.opera.core.systems.OperaDriver;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
-import org.jbehave.core.annotations.When;
+import org.jbehave.core.annotations.*;
 import org.junit.Assert;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -112,8 +110,8 @@ public class WebSteps {
     }
 
     @BddAnnotation(description = "Verifies that the element text is the same as specified." + selectorsInfo)
-         @Then("Web element $selector should have text $text")
-         public void shouldHaveText(String selector, String text) {
+    @Then("Web element $selector should have text $text")
+    public void shouldHaveText(String selector, String text) {
         findElement(selector).shouldHave(text(text));
     }
 
@@ -149,20 +147,38 @@ public class WebSteps {
 
     @BddAnnotation(description = "Verifies that the element is visible (appears) and present (exists)")
     @Then("Web element $selector is visible")
-    public void shouldHaveVisible(String selector) {
-        findElement(selector).shouldHave(visible);
+    @Alias("Web element $selector appears")
+    public void shouldBeVisible(String selector) {
+        findElement(selector).shouldBe(visible);
     }
 
     @BddAnnotation(description = "Verifies that the element is hidden (not visible, disappeared)")
-    @Then("Web element $selector is visible")
-    public void shouldHaveHidden(String selector) {
-        findElement(selector).shouldHave(hidden);
+    @Then("Web element $selector is hidden")
+    @Aliases(values = {
+            "Web element $selector disappeared",
+            "Web element $selector is NOT visible"
+    })
+    public void shouldBeHidden(String selector) {
+        findElement(selector).shouldBe(hidden);
     }
 
     @BddAnnotation(description = "Verifies that the element is present (exists)")
     @Then("Web element $selector is present")
-    public void shouldHavePresent(String selector) {
-        findElement(selector).shouldHave(present);
+    @Alias("Web element $selector exists")
+    public void shouldBePresent(String selector) {
+        findElement(selector).shouldBe(present);
+    }
+
+    @BddAnnotation(description = "Verifies that the element is read-only")
+    @Then("Web element $selector is read-only")
+    public void shouldBeReadOnly(String selector) {
+        findElement(selector).shouldBe(readonly);
+    }
+
+    @BddAnnotation(description = "Verifies that the element text (or value in case of input) is empty.")
+    @Then("Web element $selector is empty")
+    public void shouldBeEmpty(String selector) {
+
     }
 
     // Common methods

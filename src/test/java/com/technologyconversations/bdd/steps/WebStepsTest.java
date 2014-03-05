@@ -186,55 +186,79 @@ public class WebStepsTest {
         steps.shouldNotHaveSelectedOption(selectId, selectedOptionText);
     }
 
-    // shouldHaveVisible
+    // shouldBeVisible
 
     @Test
-    public void shouldHaveVisibleShouldNotFailIfElementIsVisible() {
-        steps.shouldHaveVisible(linkId);
+    public void shouldBeVisibleShouldNotFailIfElementIsVisible() {
+        steps.shouldBeVisible(linkId);
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldHaveVisibleShouldFailIfElementIsHidden() {
-        steps.shouldHaveVisible(invisibleId);
+    public void shouldBeVisibleShouldFailIfElementIsHidden() {
+        steps.shouldBeVisible(invisibleId);
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldHaveVisibleShouldFailIfElementIsNotPresent() {
-        steps.shouldHaveVisible("#nonExistentId");
+    public void shouldBeVisibleShouldFailIfElementIsNotPresent() {
+        steps.shouldBeVisible("#nonExistentId");
     }
 
-    // shouldHaveHidden
+    // shouldBeHidden
 
     @Test(expected = AssertionError.class)
-    public void shouldHaveHiddenShouldFailIfElementIsVisible() {
-        steps.shouldHaveHidden(linkId);
+    public void shouldBeHiddenShouldFailIfElementIsVisible() {
+        steps.shouldBeHidden(linkId);
     }
 
     @Test
-    public void shouldHaveHiddenShouldNotFailIfElementIsHidden() {
-        steps.shouldHaveHidden(invisibleId);
+    public void shouldBeHiddenShouldNotFailIfElementIsHidden() {
+        steps.shouldBeHidden(invisibleId);
     }
 
     @Test
-    public void shouldHaveHiddenShouldNotFailIfElementIsNotPresent() {
-        steps.shouldHaveHidden("#nonExistentId");
+    public void shouldBeHiddenShouldNotFailIfElementIsNotPresent() {
+        steps.shouldBeHidden("#nonExistentId");
     }
 
-    // shouldHavePresent
+    // shouldBePresent
 
     @Test
-    public void shouldHavePresentShouldNotFailIfElementIsPresent() {
-        steps.shouldHavePresent(linkId);
+    public void shouldBePresentShouldNotFailIfElementIsPresent() {
+        steps.shouldBePresent(linkId);
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldHavePresentShouldFailIfElementIsNotPresent() {
-        steps.shouldHavePresent("#nonExistentId");
+    public void shouldBePresentShouldFailIfElementIsNotPresent() {
+        steps.shouldBePresent("#nonExistentId");
     }
 
     @Test
-    public void shouldHavePresentShouldNotFailIfElementIsNotVisible() {
-        steps.shouldHavePresent(invisibleId);
+    public void shouldBePresentShouldNotFailIfElementIsNotVisible() {
+        steps.shouldBePresent(invisibleId);
+    }
+
+    // shouldBeReadOnly
+
+    @Test
+    public void shouldBeReadOnlyShouldNotFailIfElementIsReadOnly() {
+        steps.shouldBeReadOnly("#readOnlyId");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldBeReadOnlyShouldFailIfElementIsNotReadOnly() {
+        steps.shouldBeReadOnly(linkId);
+    }
+
+    // shouldBeEmpty
+
+    @Test
+    public void shouldBeEmptyShouldNotFailIfElementIsEmpty() {
+        steps.shouldBeEmpty("#EmptyId");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldBeEmptyShouldFailIfElementIsNotEmpty() {
+        steps.shouldBeEmpty(linkId);
     }
 
     // selectOption
