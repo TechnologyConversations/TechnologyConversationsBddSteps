@@ -21,11 +21,16 @@ public class WebSteps {
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
     // TODO Add uploadFromClasspath
+    // TODO Add options
+    // TODO Add focused
+    // TODO Add selected
 
-    private final String selectorsInfo = "\nAny CSS selector can be used to locate the element. Most commonly used selectors are:\n" +
+    private final String selectorsInfo = "\nAny CSS selector can be used to locate the element. " +
+            "Most commonly used selectors are:\n" +
             ".myClass: Matches any element with class equal to 'myClass'\n" +
             "#myId: Matches any element with ID equal to 'myId'\n" +
             "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.";
+    private final String caseInsensitive = "\nVerification is case insensitive.";
 
     /* Supported drivers are:
             firefox (default)
@@ -109,22 +114,51 @@ public class WebSteps {
         Assert.assertEquals(title, title());
     }
 
-    @BddAnnotation(description = "Verifies that the element text is the same as specified." + selectorsInfo)
+    @BddAnnotation(description = "Verifies that the element text contains the specified text." +
+            caseInsensitive + selectorsInfo)
     @Then("Web element $selector should have text $text")
     public void shouldHaveText(String selector, String text) {
         findElement(selector).shouldHave(text(text));
+    }
+
+    @BddAnnotation(description = "Verifies that the element text does NOT contain the specified text." +
+            caseInsensitive + selectorsInfo)
+    @Then("Web element $selector should NOT have text $text")
+    public void shouldNotHaveText(String selector, String text) {
+        findElement(selector).shouldNotHave(text(text));
+    }
+
+    @BddAnnotation(description = "Verifies that the element text matches the specified regular expression." +
+            " For example, 'Hello, .*, how are you!' uses '.*' to match any text." + selectorsInfo)
+    @Then("Web element $selector should have matching text $regEx")
+    public void shouldHaveMatchText(String selector, String regEx) {
+        findElement(selector).shouldHave(matchText(regEx));
+    }
+
+    @BddAnnotation(description = "Verifies that the element text does NOT match the specified regular expression." + selectorsInfo)
+    @Then("Web element $selector should NOT have matching text $regEx")
+    public void shouldNotHaveMatchText(String selector, String regEx) {
+        findElement(selector).shouldNotHave(matchText(regEx));
+    }
+
+    @BddAnnotation(description = "Verifies that the element text is exactly the same as the specified text." +
+            caseInsensitive + selectorsInfo)
+    @Then("Web element $selector should have exact text $text")
+    public void shouldHaveExactText(String selector, String text) {
+        findElement(selector).shouldHave(exactText(text));
+    }
+
+    @BddAnnotation(description = "Verifies that the element text is NOT exactly the same as the specified text." +
+            caseInsensitive + selectorsInfo)
+    @Then("Web element $selector should NOT have exact text $text")
+    public void shouldNotHaveExactText(String selector, String text) {
+        findElement(selector).shouldNotHave(exactText(text));
     }
 
     @BddAnnotation(description = "Verifies that the element value is the same as specified." + selectorsInfo)
     @Then("Web element $selector should have value $value")
     public void shouldHaveValue(String selector, String value) {
         findElement(selector).shouldHave(value(value));
-    }
-
-    @BddAnnotation(description = "Verifies that the element text is NOT the same as specified." + selectorsInfo)
-    @Then("Web element $selector should NOT have text $text")
-    public void shouldNotHaveText(String selector, String text) {
-        findElement(selector).shouldNotHave(text(text));
     }
 
     @BddAnnotation(description = "Verifies that the element value is NOT the same as specified." + selectorsInfo)
@@ -178,7 +212,19 @@ public class WebSteps {
     @BddAnnotation(description = "Verifies that the element text (or value in case of input) is empty.")
     @Then("Web element $selector is empty")
     public void shouldBeEmpty(String selector) {
+        findElement(selector).shouldBe(empty);
+    }
 
+    @BddAnnotation(description = "Verifies that the element is enabled")
+    @Then("Web element $selector is enabled")
+    public void shouldBeEnabled(String selector) {
+        findElement(selector).shouldBe(enabled);
+    }
+
+    @BddAnnotation(description = "Verifies that the element is disabled")
+    @Then("Web element $selector is disabled")
+    public void shouldBeDisabled(String selector) {
+        findElement(selector).shouldBe(disabled);
     }
 
     // Common methods

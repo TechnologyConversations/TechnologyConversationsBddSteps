@@ -75,7 +75,7 @@ public class WebStepsTest {
         steps.checkTitle(pageTitle);
     }
 
-    // shouldHaveTest
+    // shouldHaveText
 
     @Test
     public void shouldHaveTextShouldPassIfElementTextIsTheSame() {
@@ -87,16 +87,14 @@ public class WebStepsTest {
         steps.shouldHaveText(linkId, "This is non-existent text");
     }
 
-    // shouldHaveValue
-
     @Test
-    public void shouldHaveValueShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveValue(inputId, "This is input");
+    public void shouldHaveTextShouldPassIfElementTextContainsSpecifiedText() {
+        steps.shouldHaveText(linkId, "This is");
     }
 
-    @Test(expected = AssertionError.class)
-    public void shouldHaveValueShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveValue(inputId, "This is non-existent value");
+    @Test
+    public void shouldHaveTextShouldBeCaseInsensitive() {
+        steps.shouldHaveText(linkId, "this is LINK");
     }
 
     // shouldNotHaveText
@@ -109,6 +107,96 @@ public class WebStepsTest {
     @Test(expected = AssertionError.class)
     public void shouldNotHaveTextShouldFailIfElementTextIsTheSame() {
         steps.shouldNotHaveText(linkId, "This is link");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveTextShouldFailIfElementContainsSpecifiedText() {
+        steps.shouldNotHaveText(linkId, "This is");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveTextShouldBeCaseInsensitive() {
+        steps.shouldNotHaveText(linkId, "this is LINK");
+    }
+
+    // shouldHaveExactText
+
+    @Test
+    public void shouldHaveExactTextShouldPassIfElementTextIsTheSame() {
+        steps.shouldHaveExactText(linkId, "This is link");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveExactTextShouldFailIfElementTextIsNotTheSame() {
+        steps.shouldHaveExactText(linkId, "This is non-existent text");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveExactTextShouldFailIfElementTextContainsSpecifiedText() {
+        steps.shouldHaveExactText(linkId, "This is");
+    }
+
+    @Test
+    public void shouldHaveExactTextShouldBeCaseInsensitive() {
+        steps.shouldHaveExactText(linkId, "this is LINK");
+    }
+
+    // shouldNotHaveExactText
+
+    @Test
+    public void shouldNotHaveExactTextShouldPassIfElementTextIsNotTheSame() {
+        steps.shouldNotHaveExactText(linkId, "This is non-existent text");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveExactTextShouldFailIfElementTextIsTheSame() {
+        steps.shouldNotHaveExactText(linkId, "This is link");
+    }
+
+    @Test
+    public void shouldNotHaveExactTextShouldPassIfElementContainsSpecifiedText() {
+        steps.shouldNotHaveExactText(linkId, "This is");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveExactTextShouldBeCaseInsensitive() {
+        steps.shouldNotHaveExactText(linkId, "this is LINK");
+    }
+
+    // shouldHaveMatchText
+
+    @Test
+    public void shouldHaveMatchTextShouldPassIfThereIsMatch() {
+        steps.shouldHaveMatchText(linkId, "This .* link");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveMatchTextShouldFailIfThereIsNoMatch() {
+        steps.shouldHaveMatchText(linkId, "This is non-existent text");
+    }
+
+    // shouldNotHaveMatchText
+
+    @Test
+    public void shouldNotHaveMatchTextShouldPassIfThereIsNoMatch() {
+        steps.shouldNotHaveMatchText(linkId, "This is non-existent text");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotHaveMatchTextShouldFailIfThereIsMatch() {
+        steps.shouldNotHaveMatchText(linkId, "This .* link");
+    }
+
+    // shouldHaveValue
+
+    @Test
+    public void shouldHaveValueShouldPassIfElementTextIsTheSame() {
+        steps.shouldHaveValue(inputId, "This is input");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldHaveValueShouldFailIfElementTextIsNotTheSame() {
+        steps.shouldHaveValue(inputId, "This is non-existent value");
     }
 
     // shouldNotHaveValue
@@ -253,12 +341,36 @@ public class WebStepsTest {
 
     @Test
     public void shouldBeEmptyShouldNotFailIfElementIsEmpty() {
-        steps.shouldBeEmpty("#EmptyId");
+        steps.shouldBeEmpty("#emptyId");
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeEmptyShouldFailIfElementIsNotEmpty() {
         steps.shouldBeEmpty(linkId);
+    }
+
+    // shouldBeEnabled
+
+    @Test
+    public void shouldBeEnabledShouldNotFailIfElementIsEnabled() {
+        steps.shouldBeEnabled(linkId);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldBeEnabledShouldFailIfElementIsDisabled() {
+        steps.shouldBeEnabled("#disabledId");
+    }
+
+    // shouldBeDisabled
+
+    @Test
+    public void shouldBeDisabledShouldNotFailIfElementIsDisabled() {
+        steps.shouldBeDisabled("#disabledId");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldBeDisabledShouldFailIfElementIsEnabled() {
+        steps.shouldBeDisabled(linkId);
     }
 
     // selectOption
