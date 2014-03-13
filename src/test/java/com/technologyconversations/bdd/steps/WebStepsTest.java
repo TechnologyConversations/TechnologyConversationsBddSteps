@@ -1,18 +1,23 @@
 package com.technologyconversations.bdd.steps;
 
 import com.codeborne.selenide.ex.ElementNotFound;
-import org.junit.Assert;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WebStepsTest {
 
     // TODO Test with all browsers
 
-    private WebSteps steps;
+    private static WebSteps steps;
     private final String linkId = "#linkId";
     private final String inputId = "#inputId";
     private final String selectId = "#selectId";
@@ -21,36 +26,119 @@ public class WebStepsTest {
     private final String pageTitle = "BDD Steps Test Page";
     private final String notSelectedOptionText = "Option 1 Test";
     private final String selectedOptionText = "Option 2 Test";
+    private static String indexUrl, pageUrl;
+
+    @BeforeClass
+    public static void beforeClass() {
+        steps = new WebSteps();
+        steps.setDriver("htmlunit");
+        File indexFile = new File("src/test/resources/index.html");
+        File pageFile = new File("src/test/resources/page.html");
+        indexUrl = "file:///" + indexFile.getAbsolutePath();
+        pageUrl = "file:///" + pageFile.getAbsolutePath();
+    }
 
     @Before
     public void before() {
-        if (steps == null) {
-            steps = new WebSteps();
-            steps.setDriver("htmlunit");
-        }
-        File file = new File("src/test/resources/index.html");
         steps.configTimeout(0);
-        steps.open("file:///" + file.getAbsolutePath());
+        steps.open(indexUrl);
+        steps.setParams(null);
     }
+
+    // BddParams
+
+    @Test
+    public void bddParamsAnnotationShouldBeAssignedToTheClass() {
+        assertThat(WebSteps.class.getAnnotation(BddParams.class), is(notNullValue()));
+    }
+
+    @Test
+    public void bddParamsAnnotationShouldContainWebDriver() {
+        BddParams bddParams = WebSteps.class.getAnnotation(BddParams.class);
+        assertThat(bddParams.value(), hasItemInArray("webDriver"));
+    }
+
+    @Test
+    public void bddParamsAnnotationShouldContainWebUrl() {
+        BddParams bddParams = WebSteps.class.getAnnotation(BddParams.class);
+        assertThat(bddParams.value(), hasItemInArray("webUrl"));
+    }
+
+    // setParams
+
+    @Test
+    public void setParamsShouldStoreParams() {
+        WebSteps testSteps = new WebSteps();
+        Map<String, String> params = new HashMap<>();
+        for (int i = 0; i < 5; i++) {
+            params.put("key" + i, "value" + i);
+        }
+        testSteps.setParams(params);
+        assertThat(testSteps.getParams(), equalTo(params));
+    }
+
+    @Test
+    public void setParamsShouldBeAnnotatedAsBddParamsBean() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("setParams", Map.class).getAnnotation(BddParamsBean.class), is(notNullValue()));
+    }
+
+    // BeforeStories
+
+    // Cannot run in CI because of firefox
+//    @Test
+//    public void beforeStoriesShouldSetDriver() {
+//        Assert.assertTrue(steps.getWebDriver() instanceof HtmlUnitDriver);
+//        steps.getParams().put("webDriver", "firefox");
+//        steps.beforeStoriesWebSteps();
+//        Assert.assertTrue(steps.getWebDriver() instanceof FirefoxDriver);
+//    }
+
+
+    // configTimeout
 
     @Test
     public void configTimeoutShouldSetTimeout() {
         Date start;
+        int actual;
         steps.configTimeout(0);
         start = new Date();
         try {
             steps.clickElement("#nonExistingElement");
         } catch (ElementNotFound e) { }
-        Assert.assertTrue((new Date().getTime() - start.getTime()) < 1000);
+        actual = (int) (new Date().getTime() - start.getTime());
+        assertThat(actual, is(lessThan(1000)));
         steps.configTimeout(1);
         start = new Date();
         try {
             steps.clickElement("#nonExistingElement");
         } catch (ElementNotFound e) { }
-        Assert.assertTrue((new Date().getTime() - start.getTime()) >= 1000);
+        actual = (int) (new Date().getTime() - start.getTime());
+        assertThat(actual, is(greaterThan(1000)));
     }
 
     // open
+
+    @Test
+    public void openWithUrlShouldRedirectToTheSpecifiedUrl() {
+        steps.checkTitle(indexTitle);
+        steps.open(pageUrl);
+        steps.checkTitle(pageTitle);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void openShouldFailIfWebUrlPageDoesNotExist() {
+        steps.open();
+    }
+
+    @Test
+    public void openShouldRedirectToTheWebUrlSpecifiedAsParam() {
+        steps.checkTitle(indexTitle);
+        steps.getParams().put("webUrl", pageUrl);
+        steps.open();
+        steps.checkTitle(pageTitle);
+    }
+
+    // clickElement
 
     @Test
     public void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
@@ -65,8 +153,6 @@ public class WebStepsTest {
         steps.clickElement(".linkClass");
         steps.checkTitle(pageTitle);
     }
-
-    // clickElement
 
     @Test
     public void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
