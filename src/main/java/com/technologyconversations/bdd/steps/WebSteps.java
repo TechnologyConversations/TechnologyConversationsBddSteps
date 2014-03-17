@@ -2,10 +2,9 @@ package com.technologyconversations.bdd.steps;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.WebDriverRunner;
+
+import com.codeborne.selenide.*;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.opera.core.systems.OperaDriver;
 import org.jbehave.core.annotations.*;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +21,6 @@ import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
-@BddParams({"webDriver", "webUrl"})
 public class WebSteps {
 
     // TODO Add methods that use selector with index
@@ -36,7 +34,9 @@ public class WebSteps {
             "Most commonly used selectors are:\n" +
             ".myClass: Matches any element with class equal to 'myClass'\n" +
             "#myId: Matches any element with ID equal to 'myId'\n" +
-            "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.";
+            "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.\n" +
+            "Additional selectors are:\n" +
+            "text:my text: Matches any element with text equal to 'my text'";
     private final String caseInsensitive = "\nVerification is NOT case sensitive.";
 
     private Map<String, String> params;
@@ -51,42 +51,54 @@ public class WebSteps {
         return params;
     }
 
-    /* Supported drivers are:
-            firefox (default)
-            chrome (the fastest. Recommended. Needs additional chromedriver binary installation.)
-            htmlunit (headless browser)
-            ie
-            opera (slow and unstable, not recommended)
-            phantomjs (newborn headless browser)
-        Same effect can be accomplished with System parameter (i.e. -Dbrowser=chrome)
-        TODO Test
+    /*
+    Supported drivers are: firefox (default), chrome (the fastest, recommended), htmlunit (headless browser),
+    ie, opera (slow and unstable, not recommended), phantomjs (headless browser).
+    Same effect can be accomplished with System parameter (i.e. -Dbrowser=chrome)
+    TODO Test
     */
-    public void setDriver(String driver) {
+    private WebDriver webDriver;
+    public void setWebDriver(String driver) {
         switch (driver.toLowerCase()) {
             case "firefox":
-                WebDriverRunner.setWebDriver(new FirefoxDriver());
+                webDriver = new FirefoxDriver();
                 break;
             case "chrome":
-                WebDriverRunner.setWebDriver(new ChromeDriver());
+                webDriver = new ChromeDriver();
                 break;
             case "htmlunit":
-                WebDriverRunner.setWebDriver(new HtmlUnitDriver(true));
+                HtmlUnitDriver htmlUnitDriver = new HtmlUnitDriver(BrowserVersion.FIREFOX_17);
+                htmlUnitDriver.setJavascriptEnabled(true);
+                webDriver = htmlUnitDriver;
                 break;
             case "ie":
-                WebDriverRunner.setWebDriver(new InternetExplorerDriver());
+                webDriver = new InternetExplorerDriver();
                 break;
             case "opera":
-                WebDriverRunner.setWebDriver(new OperaDriver());
+                webDriver = new OperaDriver();
                 break;
             case "phantomjs":
-                WebDriverRunner.setWebDriver(new PhantomJSDriver());
+                webDriver = new PhantomJSDriver();
                 break;
             default:
                 throw new RuntimeException(driver + " driver is currently not supported");
         }
+        WebDriverRunner.setWebDriver(webDriver);
+    }
+    @BddParam(value = "browser", description = "Supported drivers are: firefox (default), " +
+            "chrome (the fastest, recommended), htmlunit (headless browser), ie, " +
+            "opera (slow and unstable, not recommended), phantomjs (headless browser).")
+    public void setWebDriver() {
+        if (getWebDriver() == null) {
+            String browser = "firefox";
+            if (getParams().containsKey("browser")) {
+                browser = getParams().get("browser");
+            }
+            setWebDriver(browser);
+        }
     }
     protected WebDriver getWebDriver() {
-        return WebDriverRunner.getWebDriver();
+        return webDriver;
     }
 
     // Given
@@ -94,20 +106,28 @@ public class WebSteps {
     @BddDescription("Opens specified address.")
     @Given("Web address $url is opened")
     public void open(String url) {
+        setWebDriver();
         Selenide.open(url);
     }
 
     @BddDescription("Opens address specified by webUrl parameter.")
+    @BddParam(value = "url", description = "Web address used with the 'Given Web home page is opened' step.")
     @Given("Web home page is opened")
     public void open() {
-        assertThat(getParams(), hasKey("webUrl"));
-        Selenide.open(getParams().get("webUrl"));
+        assertThat(getParams(), hasKey("url"));
+        setWebDriver();
+        Selenide.open(getParams().get("url"));
     }
 
-    @BddDescription("Sets timeout used when operating with elements.")
+    @BddDescription("Sets timeout used when operating with elements. Default value is 4 seconds.")
+    @BddParam(value = "timeout", description = "Sets timeout used when operating with elements. Default value is 4 seconds.")
     @Given("Web timeout is $seconds seconds")
-    public void configTimeout(int seconds) {
+    public void setConfigTimeout(int seconds) {
         Configuration.timeout = seconds * 1000;
+    }
+    protected int getConfigTimeout() {
+        Long value = Configuration.timeout / 1000;
+        return value.intValue();
     }
 
     // When
@@ -266,23 +286,36 @@ public class WebSteps {
 
     // Common methods
 
-    private SelenideElement findElement(String selector) {
-        if (Character.isLetter(selector.charAt(0))) {
-            selector = "#" + selector;
+    protected SelenideElement findElement(String selector) {
+        String byTextPrefix = "text:";
+        if (selector.startsWith(byTextPrefix)) {
+            return $(Selectors.byText(selector.substring(byTextPrefix.length())));
+        } else {
+            if (Character.isLetter(selector.charAt(0))) {
+                selector = "#" + selector;
+            }
+            return $(selector);
         }
-        return $(selector);
     }
 
     @BeforeStories
     public void beforeStoriesWebSteps() {
-        if (getParams().containsKey("webDriver")) {
-            setDriver(getParams().get("webDriver"));
+        if (getParams().containsKey("timeout")) {
+            try {
+                setConfigTimeout(Integer.parseInt(getParams().get("timeout")));
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
         }
     }
 
     @AfterStories
     public void afterStoriesWebSteps() {
         WebDriverRunner.closeWebDriver();
+        if (getWebDriver() != null) {
+            getWebDriver().close();
+            getWebDriver().quit();
+        }
     }
 
 }

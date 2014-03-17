@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface BddParams {
+@Target(ElementType.METHOD)
+public @interface BddParam {
 
-    String[] value();
+    String value();
+    String description();
 
 }
