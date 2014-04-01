@@ -7,6 +7,7 @@ import com.codeborne.selenide.*;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.opera.core.systems.OperaDriver;
 import org.jbehave.core.annotations.*;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -59,31 +60,36 @@ public class WebSteps {
     */
     private WebDriver webDriver;
     public void setWebDriver(String driver) {
-        switch (driver.toLowerCase()) {
-            case "firefox":
-                webDriver = new FirefoxDriver();
-                break;
-            case "chrome":
-                webDriver = new ChromeDriver();
-                break;
-            case "htmlunit":
-                HtmlUnitDriver htmlUnitDriver = new HtmlUnitDriver(BrowserVersion.FIREFOX_17);
-                htmlUnitDriver.setJavascriptEnabled(true);
-                webDriver = htmlUnitDriver;
-                break;
-            case "ie":
-                webDriver = new InternetExplorerDriver();
-                break;
-            case "opera":
-                webDriver = new OperaDriver();
-                break;
-            case "phantomjs":
-                webDriver = new PhantomJSDriver();
-                break;
-            default:
-                throw new RuntimeException(driver + " driver is currently not supported");
+        if (driver == null) {
+            webDriver = null;
+        } else {
+            switch (driver.toLowerCase()) {
+                case "firefox":
+                    webDriver = new FirefoxDriver();
+                    break;
+                case "chrome":
+                    webDriver = new ChromeDriver();
+                    break;
+                case "htmlunit":
+                    HtmlUnitDriver htmlUnitDriver = new HtmlUnitDriver(BrowserVersion.FIREFOX_17);
+                    htmlUnitDriver.setJavascriptEnabled(true);
+                    webDriver = htmlUnitDriver;
+                    break;
+                case "ie":
+                    webDriver = new InternetExplorerDriver();
+                    break;
+                case "opera":
+                    webDriver = new OperaDriver();
+                    break;
+                case "phantomjs":
+                    webDriver = new PhantomJSDriver();
+                    break;
+                default:
+                    throw new RuntimeException(driver + " driver is currently not supported");
+            }
+            WebDriverRunner.setWebDriver(webDriver);
+            setSize();
         }
-        WebDriverRunner.setWebDriver(webDriver);
     }
     @BddParam(value = "browser", description = "Supported drivers are: firefox (default), " +
             "chrome (the fastest, recommended), htmlunit (headless browser), ie, " +
@@ -128,6 +134,22 @@ public class WebSteps {
     protected int getConfigTimeout() {
         Long value = Configuration.timeout / 1000;
         return value.intValue();
+    }
+
+    @BddDescription("Sets browser window size")
+    @Given("Web window size is $width width and $height height")
+    @BddParam(value = "widthHeight", description = "Sets window width and height. Values should be separated by comma (i.e. 1024, 768)")
+    public void setSize(int width, int height) {
+        getWebDriver().manage().window().setSize(new Dimension(width, height));
+    }
+    protected void setSize() {
+        if (getParams().containsKey("widthHeight")) {
+            String[] widthHeightArray = getParams().get("widthHeight").split(",");
+            assertThat("widthHeight must contain two numbers separated by comma.", widthHeightArray.length, is(2));
+            int width = Integer.parseInt(widthHeightArray[0].trim());
+            int height = Integer.parseInt(widthHeightArray[1].trim());
+            setSize(width, height);
+        }
     }
 
     // When

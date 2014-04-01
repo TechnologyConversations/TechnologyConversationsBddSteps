@@ -8,6 +8,9 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.io.File;
 import java.util.Date;
@@ -28,6 +31,7 @@ public class WebStepsTest {
     private final String notSelectedOptionText = "Option 1 Test";
     private final String selectedOptionText = "Option 2 Test";
     private static String indexUrl, pageUrl;
+    private static Dimension dimension;
 
     @BeforeClass
     public static void beforeClass() {
@@ -37,13 +41,18 @@ public class WebStepsTest {
         File pageFile = new File("src/test/resources/page.html");
         indexUrl = "file:///" + indexFile.getAbsolutePath();
         pageUrl = "file:///" + pageFile.getAbsolutePath();
+        dimension = new Dimension(789, 678);
     }
 
     @Before
     public void before() {
+        if (!(steps.getWebDriver() instanceof HtmlUnitDriver)) {
+            steps.setWebDriver("htmlunit");
+        }
         steps.setConfigTimeout(0);
         steps.open(indexUrl);
         steps.setParams(null);
+        steps.setSize(100, 100);
     }
 
     // setWebDriver
@@ -52,6 +61,30 @@ public class WebStepsTest {
     public void setWebDriverShouldHaveBddParamAnnotation() throws NoSuchMethodException {
         BddParam bddParam = WebSteps.class.getMethod("setWebDriver").getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("browser"));
+    }
+
+    @Test
+    public void setWebDriverShouldSetWebDriver() {
+        steps.setWebDriver("phantomjs");
+        assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
+    }
+
+    @Test
+    public void setWebDriverShouldSetWindowWidthAndHeight() {
+        String widthHeight = Integer.toString(dimension.getWidth()) + ", " + Integer.toString(dimension.getHeight());
+        steps.getParams().put("widthHeight", widthHeight);
+        steps.setWebDriver("phantomjs");
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual.getWidth(), is(equalTo(dimension.getWidth())));
+        assertThat(actual.getHeight(), is(equalTo(dimension.getHeight())));
+    }
+
+    @Test
+    public void setWebDriverShouldNotSetWindowWidthAndHeightWhenWeigthHeightParamIsNotSet() {
+        steps.setWebDriver("phantomjs");
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual.getWidth(), is(not(equalTo(dimension.getWidth()))));
+        assertThat(actual.getHeight(), is(not(equalTo(dimension.getHeight()))));
     }
 
     // setParams
@@ -113,6 +146,13 @@ public class WebStepsTest {
     }
 
     @Test
+    public void setSizeShouldSetWindowWidthAndHeight() {
+        steps.setSize(dimension.getWidth(), dimension.getHeight());
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual.getWidth(), is(equalTo(dimension.getWidth())));
+    }
+
+    @Test
     public void configTimeoutShouldHaveBddParamAnnotation() throws NoSuchMethodException {
         BddParam bddParam = WebSteps.class.getMethod("setConfigTimeout", int.class).getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("timeout"));
@@ -144,6 +184,14 @@ public class WebStepsTest {
     public void openShouldHaveBddParamAnnotation() throws NoSuchMethodException {
         BddParam bddParam = WebSteps.class.getMethod("open").getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("url"));
+    }
+
+    @Test
+    public void openShouldSetDriverToValueOfTheParamWebDriverWhenDriverIsNull() {
+        steps.setWebDriver(null);
+        steps.getParams().put("browser", "phantomjs");
+        steps.open(indexUrl);
+        assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
     }
 
     // clickElement
