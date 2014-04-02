@@ -1,4 +1,4 @@
-package com.technologyconversations.bdd.steps;
+package com.technologyconversations.bdd.steps.util;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,4 +7,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface BddParamsBean { }
+public @interface BddParam {
+
+    String value();
+    String description();
+
+}

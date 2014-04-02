@@ -2,9 +2,13 @@ package com.technologyconversations.bdd.steps;
 
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.ElementNotFound;
-import static org.hamcrest.MatcherAssert.*;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import com.technologyconversations.bdd.steps.util.BddParam;
+import com.technologyconversations.bdd.steps.util.BddParamsBean;
+import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,11 +36,13 @@ public class WebStepsTest {
     private final String selectedOptionText = "Option 2 Test";
     private static String indexUrl, pageUrl;
     private static Dimension dimension;
+    private final String linkText = "this is LINK";
 
     @BeforeClass
     public static void beforeClass() {
         steps = new WebSteps();
-        steps.setWebDriver("htmlunit");
+        steps.addVariable("browser", "htmlunit");
+        steps.setWebDriver(new BddVariable("@browser"));
         File indexFile = new File("src/test/resources/index.html");
         File pageFile = new File("src/test/resources/page.html");
         indexUrl = "file:///" + indexFile.getAbsolutePath();
@@ -47,12 +53,19 @@ public class WebStepsTest {
     @Before
     public void before() {
         if (!(steps.getWebDriver() instanceof HtmlUnitDriver)) {
-            steps.setWebDriver("htmlunit");
+            steps.setWebDriver(new BddVariable("@browser"));
         }
-        steps.setConfigTimeout(0);
-        steps.open(indexUrl);
+        steps.setConfigTimeout(new BddVariable("0"));
+        steps.open(new BddVariable(indexUrl));
         steps.setParams(null);
-        steps.setSize(100, 100);
+        steps.setSize(new BddVariable("100"), new BddVariable("100"));
+    }
+
+    // CommonSteps
+
+    @Test
+    public void webStepsShouldExtendCommonSteps() {
+        assertThat(steps, is(instanceOf(CommonSteps.class)));
     }
 
     // setWebDriver
@@ -65,7 +78,7 @@ public class WebStepsTest {
 
     @Test
     public void setWebDriverShouldSetWebDriver() {
-        steps.setWebDriver("phantomjs");
+        steps.setWebDriver(new BddVariable("phantomjs"));
         assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
     }
 
@@ -73,7 +86,7 @@ public class WebStepsTest {
     public void setWebDriverShouldSetWindowWidthAndHeight() {
         String widthHeight = Integer.toString(dimension.getWidth()) + ", " + Integer.toString(dimension.getHeight());
         steps.getParams().put("widthHeight", widthHeight);
-        steps.setWebDriver("phantomjs");
+        steps.setWebDriver(new BddVariable("phantomjs"));
         Dimension actual = steps.getWebDriver().manage().window().getSize();
         assertThat(actual.getWidth(), is(equalTo(dimension.getWidth())));
         assertThat(actual.getHeight(), is(equalTo(dimension.getHeight())));
@@ -81,10 +94,15 @@ public class WebStepsTest {
 
     @Test
     public void setWebDriverShouldNotSetWindowWidthAndHeightWhenWeigthHeightParamIsNotSet() {
-        steps.setWebDriver("phantomjs");
+        steps.setWebDriver(new BddVariable("phantomjs"));
         Dimension actual = steps.getWebDriver().manage().window().getSize();
         assertThat(actual.getWidth(), is(not(equalTo(dimension.getWidth()))));
         assertThat(actual.getHeight(), is(not(equalTo(dimension.getHeight()))));
+    }
+
+    @Test
+    public void setWebDriverShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("setWebDriver", BddVariable.class), is(notNullValue()));
     }
 
     // setParams
@@ -129,42 +147,72 @@ public class WebStepsTest {
     public void configTimeoutShouldSetTimeout() {
         Date start;
         int actual;
-        steps.setConfigTimeout(0);
+        steps.setConfigTimeout(new BddVariable("0"));
         start = new Date();
         try {
-            steps.clickElement("#nonExistingElement");
-        } catch (ElementNotFound e) { }
+            steps.clickElement(new BddVariable("#nonExistingElement"));
+        } catch (ElementNotFound e) {
+            // Do nothing
+        }
         actual = (int) (new Date().getTime() - start.getTime());
         assertThat(actual, is(lessThan(1000)));
-        steps.setConfigTimeout(1);
+        steps.setConfigTimeout(new BddVariable("1"));
         start = new Date();
         try {
-            steps.clickElement("#nonExistingElement");
-        } catch (ElementNotFound e) { }
+            steps.clickElement(new BddVariable("#nonExistingElement"));
+        } catch (ElementNotFound e) {
+            // Do nothing
+        }
         actual = (int) (new Date().getTime() - start.getTime());
         assertThat(actual, is(greaterThan(1000)));
     }
 
     @Test
-    public void setSizeShouldSetWindowWidthAndHeight() {
-        steps.setSize(dimension.getWidth(), dimension.getHeight());
-        Dimension actual = steps.getWebDriver().manage().window().getSize();
-        assertThat(actual.getWidth(), is(equalTo(dimension.getWidth())));
+    public void setConfigTimeoutShouldBeSetToZeroIfValueCannotBeParsedToInteger() {
+        steps.setConfigTimeout(new BddVariable("X"));
+        assertThat(steps.getConfigTimeout(), is(0));
     }
 
     @Test
     public void configTimeoutShouldHaveBddParamAnnotation() throws NoSuchMethodException {
-        BddParam bddParam = WebSteps.class.getMethod("setConfigTimeout", int.class).getAnnotation(BddParam.class);
+        BddParam bddParam = WebSteps.class.getMethod("setConfigTimeout", BddVariable.class).getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("timeout"));
+    }
+
+    @Test
+    public void setConfigTimeoutShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("setConfigTimeout", BddVariable.class), is(notNullValue()));
+    }
+
+    // setSize
+
+    @Test
+    public void setSizeShouldHaveTheBddParamAnnotation() throws NoSuchMethodException {
+        BddParam bddParam = WebSteps.class.getMethod("setSize", BddVariable.class, BddVariable.class).getAnnotation(BddParam.class);
+        assertThat(bddParam.value(), is("widthHeight"));
+    }
+
+    @Test
+    public void setSizeShouldSetWindowWidthAndHeight() {
+        String width = Integer.toString(dimension.getWidth());
+        String height = Integer.toString(dimension.getHeight());
+        steps.setSize(new BddVariable(width), new BddVariable(height));
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual, is(equalTo(dimension)));
+    }
+
+    @Test
+    public void setSizeShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("setSize", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // open
 
     @Test
     public void openWithUrlShouldRedirectToTheSpecifiedUrl() {
-        steps.checkTitle(indexTitle);
-        steps.open(pageUrl);
-        steps.checkTitle(pageTitle);
+        steps.checkTitle(new BddVariable(indexTitle));
+        steps.open(new BddVariable(pageUrl));
+        steps.checkTitle(new BddVariable(pageTitle));
     }
 
     @Test(expected = AssertionError.class)
@@ -174,10 +222,10 @@ public class WebStepsTest {
 
     @Test
     public void openShouldRedirectToTheWebUrlSpecifiedAsParam() {
-        steps.checkTitle(indexTitle);
+        steps.checkTitle(new BddVariable(indexTitle));
         steps.getParams().put("url", pageUrl);
         steps.open();
-        steps.checkTitle(pageTitle);
+        steps.checkTitle(new BddVariable(pageTitle));
     }
 
     @Test
@@ -190,194 +238,256 @@ public class WebStepsTest {
     public void openShouldSetDriverToValueOfTheParamWebDriverWhenDriverIsNull() {
         steps.setWebDriver(null);
         steps.getParams().put("browser", "phantomjs");
-        steps.open(indexUrl);
+        steps.open(new BddVariable(indexUrl));
         assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
     }
+
+    @Test
+    public void openShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("open", BddVariable.class), is(notNullValue()));
+    }
+
 
     // clickElement
 
     @Test
     public void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(linkId);
-        steps.checkTitle(pageTitle);
+        steps.checkTitle(new BddVariable(indexTitle));
+        steps.clickElement(new BddVariable(linkId));
+        steps.checkTitle(new BddVariable(pageTitle));
     }
 
     @Test
     public void clickElementShouldUseCssSelectorIfSelectorItStartsWithDot() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(".linkClass");
-        steps.checkTitle(pageTitle);
+        steps.checkTitle(new BddVariable(indexTitle));
+        steps.clickElement(new BddVariable(".linkClass"));
+        steps.checkTitle(new BddVariable(pageTitle));
     }
 
     @Test
     public void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(linkId);
-        steps.checkTitle(pageTitle);
+        steps.checkTitle(new BddVariable(indexTitle));
+        steps.clickElement(new BddVariable(linkId));
+        steps.checkTitle(new BddVariable(pageTitle));
+    }
+
+    @Test
+    public void clickElementShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("clickElement", BddVariable.class), is(notNullValue()));
     }
 
     // findElement
 
     @Test
     public void findElementShouldUseByTextIfSelectorStartsWithTextColon() {
-        SelenideElement element = steps.findElement("text:This is div");
-//        System.out.println(element.toString());
+        SelenideElement element = steps.findElement(new BddVariable("text:This is div"));
         assertThat(element.exists(), is(true));
     }
+
+    @Test
+    public void findElementShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("findElement", BddVariable.class), is(notNullValue()));
+    }
+
 
     // shouldHaveText
 
     @Test
     public void shouldHaveTextShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveText(linkId, "This is link");
+        steps.shouldHaveText(new BddVariable(linkId), new BddVariable(linkText));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveTextShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveText(linkId, "This is non-existent text");
+        steps.shouldHaveText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
     }
 
     @Test
     public void shouldHaveTextShouldPassIfElementTextContainsSpecifiedText() {
-        steps.shouldHaveText(linkId, "This is");
+        steps.shouldHaveText(new BddVariable(linkId), new BddVariable("This is"));
     }
 
     @Test
     public void shouldHaveTextShouldBeCaseInsensitive() {
-        steps.shouldHaveText(linkId, "this is LINK");
+        steps.shouldHaveText(new BddVariable(linkId), new BddVariable(linkText));
+    }
+
+    @Test
+    public void shouldHaveTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldHaveText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldNotHaveText
 
     @Test
     public void shouldNotHaveTextShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveText(linkId, "This is non-existent text");
+        steps.shouldNotHaveText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveTextShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveText(linkId, "This is link");
+        steps.shouldNotHaveText(new BddVariable(linkId), new BddVariable(linkText));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveTextShouldFailIfElementContainsSpecifiedText() {
-        steps.shouldNotHaveText(linkId, "This is");
+        steps.shouldNotHaveText(new BddVariable(linkId), new BddVariable("This is"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveTextShouldBeCaseInsensitive() {
-        steps.shouldNotHaveText(linkId, "this is LINK");
+        steps.shouldNotHaveText(new BddVariable(linkId), new BddVariable(linkText));
+    }
+
+    @Test
+    public void shouldNotHaveTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldNotHaveText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldHaveExactText
 
     @Test
     public void shouldHaveExactTextShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveExactText(linkId, "This is link");
+        steps.shouldHaveExactText(new BddVariable(linkId), new BddVariable(linkText));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveExactTextShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveExactText(linkId, "This is non-existent text");
+        steps.shouldHaveExactText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveExactTextShouldFailIfElementTextContainsSpecifiedText() {
-        steps.shouldHaveExactText(linkId, "This is");
+        steps.shouldHaveExactText(new BddVariable(linkId), new BddVariable("This is"));
     }
 
     @Test
     public void shouldHaveExactTextShouldBeCaseInsensitive() {
-        steps.shouldHaveExactText(linkId, "this is LINK");
+        steps.shouldHaveExactText(new BddVariable(linkId), new BddVariable(linkText));
+    }
+
+    @Test
+    public void shouldHaveExactTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldHaveExactText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldNotHaveExactText
 
     @Test
     public void shouldNotHaveExactTextShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveExactText(linkId, "This is non-existent text");
+        steps.shouldNotHaveExactText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveExactTextShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveExactText(linkId, "This is link");
+        steps.shouldNotHaveExactText(new BddVariable(linkId), new BddVariable(linkText));
     }
 
     @Test
     public void shouldNotHaveExactTextShouldPassIfElementContainsSpecifiedText() {
-        steps.shouldNotHaveExactText(linkId, "This is");
+        steps.shouldNotHaveExactText(new BddVariable(linkId), new BddVariable("This is"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveExactTextShouldBeCaseInsensitive() {
-        steps.shouldNotHaveExactText(linkId, "this is LINK");
+        steps.shouldNotHaveExactText(new BddVariable(linkId), new BddVariable(linkText));
+    }
+
+    @Test
+    public void shouldNotHaveExactTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldNotHaveExactText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldHaveMatchText
 
     @Test
     public void shouldHaveMatchTextShouldPassIfThereIsMatch() {
-        steps.shouldHaveMatchText(linkId, "This .* link");
+        steps.shouldHaveMatchText(new BddVariable(linkId), new BddVariable("This .* link"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveMatchTextShouldFailIfThereIsNoMatch() {
-        steps.shouldHaveMatchText(linkId, "This is non-existent text");
+        steps.shouldHaveMatchText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
+    }
+
+    @Test
+    public void shouldHaveMatchTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldHaveMatchText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldNotHaveMatchText
 
     @Test
     public void shouldNotHaveMatchTextShouldPassIfThereIsNoMatch() {
-        steps.shouldNotHaveMatchText(linkId, "This is non-existent text");
+        steps.shouldNotHaveMatchText(new BddVariable(linkId), new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveMatchTextShouldFailIfThereIsMatch() {
-        steps.shouldNotHaveMatchText(linkId, "This .* link");
+        steps.shouldNotHaveMatchText(new BddVariable(linkId), new BddVariable("This .* link"));
+    }
+
+    @Test
+    public void shouldNotHaveMatchTextShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldNotHaveMatchText", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldHaveValue
 
     @Test
     public void shouldHaveValueShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveValue(inputId, "This is input");
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable("This is input"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveValueShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveValue(inputId, "This is non-existent value");
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable("This is non-existent value"));
+    }
+
+    @Test
+    public void shouldHaveValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldHaveValue", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldNotHaveValue
 
     @Test
     public void shouldNotHaveValueShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveValue(inputId, "This is non-existent text");
+        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveValueShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveValue(inputId, "This is input");
+        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable("This is input"));
     }
+
+    @Test
+    public void shouldNotHaveValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldNotHaveValue", BddVariable.class, BddVariable.class), is(notNullValue()));
+    }
+
 
     // setElementValue
 
     @Test
     public void setElementValueShouldSetValueToInputElement() {
         String value = "this is new value";
-        steps.shouldNotHaveValue(inputId, value);
-        steps.setElementValue(value, inputId);
-        steps.shouldHaveValue(inputId, value);
+        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable(value));
+        steps.setElementValue(new BddVariable(value), new BddVariable(inputId));
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value));
     }
 
     @Test
     public void setElementValueShouldClearValueBeforeSettingTheNewOne() {
         String value = "this is new value";
-        steps.setElementValue("some random value", inputId);
-        steps.setElementValue(value, inputId);
-        steps.shouldHaveValue(inputId, value);
+        steps.setElementValue(new BddVariable("some random value"), new BddVariable(inputId));
+        steps.setElementValue(new BddVariable(value), new BddVariable(inputId));
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value));
+    }
+
+    @Test
+    public void setElementValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("setElementValue", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // appendElementValue
@@ -386,11 +496,17 @@ public class WebStepsTest {
     public void appendElementValueShouldAppendValueToInputElement() {
         String value1 = "value1";
         String value2 = "value2";
-        steps.setElementValue(value1, inputId);
-        steps.shouldHaveValue(inputId, value1);
-        steps.appendElementValue(value2, inputId);
-        steps.shouldHaveValue(inputId, value1 + value2);
+        steps.setElementValue(new BddVariable(value1), new BddVariable(inputId));
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value1));
+        steps.appendElementValue(new BddVariable(value2), new BddVariable(inputId));
+        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value1 + value2));
     }
+
+    @Test
+    public void appendElementValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("appendElementValue", BddVariable.class, BddVariable.class), is(notNullValue()));
+    }
+
 
     // pressEnter
 
@@ -399,138 +515,194 @@ public class WebStepsTest {
         String value1 = "First line";
         String value2 = "Second line";
         String textAreaId = "#textAreaId";
-        steps.setElementValue(value1, textAreaId);
-        steps.shouldHaveText(textAreaId, value1);
-        steps.pressEnter(textAreaId);
-        steps.appendElementValue(value2, textAreaId);
-        steps.shouldHaveText(textAreaId, value1 + "\n" + value2);
+        steps.setElementValue(new BddVariable(value1), new BddVariable(textAreaId));
+        steps.shouldHaveText(new BddVariable(textAreaId), new BddVariable(value1));
+        steps.pressEnter(new BddVariable(textAreaId));
+        steps.appendElementValue(new BddVariable(value2), new BddVariable(textAreaId));
+        steps.shouldHaveText(new BddVariable(textAreaId), new BddVariable(value1 + "\n" + value2));
+    }
+
+    @Test
+    public void pressEnterShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("pressEnter", BddVariable.class), is(notNullValue()));
     }
 
     // shouldHaveSelectedOption
 
     @Test
     public void shouldHaveSelectedOptionShouldNotFailIfSelectedOptionMatchesText() {
-        steps.shouldHaveSelectedOption(selectId, selectedOptionText);
+        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveSelectedOptionShouldFailIfSelectedOptionDoesNotMatchText() {
-        steps.shouldHaveSelectedOption(selectId, notSelectedOptionText);
+        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(notSelectedOptionText));
+    }
+
+    @Test
+    public void shouldHaveSelectedOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldHaveSelectedOption", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldHaveSelectedOption
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveSelectedOptionShouldFailIfSelectedOptionMatchesText() {
-        steps.shouldNotHaveSelectedOption(selectId, selectedOptionText);
+        steps.shouldNotHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
+    }
+
+    @Test
+    public void shouldNotHaveSelectedOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldNotHaveSelectedOption", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
     // shouldBeVisible
 
     @Test
     public void shouldBeVisibleShouldNotFailIfElementIsVisible() {
-        steps.shouldBeVisible(linkId);
+        steps.shouldBeVisible(new BddVariable(linkId));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeVisibleShouldFailIfElementIsHidden() {
-        steps.shouldBeVisible(invisibleId);
+        steps.shouldBeVisible(new BddVariable(invisibleId));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeVisibleShouldFailIfElementIsNotPresent() {
-        steps.shouldBeVisible("#nonExistentId");
+        steps.shouldBeVisible(new BddVariable("#nonExistentId"));
+    }
+
+    @Test
+    public void shouldBeVisibleShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeVisible", BddVariable.class), is(notNullValue()));
     }
 
     // shouldBeHidden
 
     @Test(expected = AssertionError.class)
     public void shouldBeHiddenShouldFailIfElementIsVisible() {
-        steps.shouldBeHidden(linkId);
+        steps.shouldBeHidden(new BddVariable(linkId));
     }
 
     @Test
     public void shouldBeHiddenShouldNotFailIfElementIsHidden() {
-        steps.shouldBeHidden(invisibleId);
+        steps.shouldBeHidden(new BddVariable(invisibleId));
     }
 
     @Test
     public void shouldBeHiddenShouldNotFailIfElementIsNotPresent() {
-        steps.shouldBeHidden("#nonExistentId");
+        steps.shouldBeHidden(new BddVariable("#nonExistentId"));
+    }
+
+    @Test
+    public void shouldBeHiddenShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeHidden", BddVariable.class), is(notNullValue()));
     }
 
     // shouldBePresent
 
     @Test
     public void shouldBePresentShouldNotFailIfElementIsPresent() {
-        steps.shouldBePresent(linkId);
+        steps.shouldBePresent(new BddVariable(linkId));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBePresentShouldFailIfElementIsNotPresent() {
-        steps.shouldBePresent("#nonExistentId");
+        steps.shouldBePresent(new BddVariable("#nonExistentId"));
     }
 
     @Test
     public void shouldBePresentShouldNotFailIfElementIsNotVisible() {
-        steps.shouldBePresent(invisibleId);
+        steps.shouldBePresent(new BddVariable(invisibleId));
     }
+
+    @Test
+    public void shouldBePresentShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBePresent", BddVariable.class), is(notNullValue()));
+    }
+
 
     // shouldBeReadOnly
 
     @Test
     public void shouldBeReadOnlyShouldNotFailIfElementIsReadOnly() {
-        steps.shouldBeReadOnly("#readOnlyId");
+        steps.shouldBeReadOnly(new BddVariable("#readOnlyId"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeReadOnlyShouldFailIfElementIsNotReadOnly() {
-        steps.shouldBeReadOnly(linkId);
+        steps.shouldBeReadOnly(new BddVariable(linkId));
+    }
+
+    @Test
+    public void shouldBeReadOnlyShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeReadOnly", BddVariable.class), is(notNullValue()));
     }
 
     // shouldBeEmpty
 
     @Test
     public void shouldBeEmptyShouldNotFailIfElementIsEmpty() {
-        steps.shouldBeEmpty("#emptyId");
+        steps.shouldBeEmpty(new BddVariable("#emptyId"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeEmptyShouldFailIfElementIsNotEmpty() {
-        steps.shouldBeEmpty(linkId);
+        steps.shouldBeEmpty(new BddVariable(linkId));
+    }
+
+    @Test
+    public void shouldBeEmptyShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeEmpty", BddVariable.class), is(notNullValue()));
     }
 
     // shouldBeEnabled
 
     @Test
     public void shouldBeEnabledShouldNotFailIfElementIsEnabled() {
-        steps.shouldBeEnabled(linkId);
+        steps.shouldBeEnabled(new BddVariable(linkId));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeEnabledShouldFailIfElementIsDisabled() {
-        steps.shouldBeEnabled("#disabledId");
+        steps.shouldBeEnabled(new BddVariable("#disabledId"));
+    }
+
+    @Test
+    public void shouldBeEnabledShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeEnabled", BddVariable.class), is(notNullValue()));
     }
 
     // shouldBeDisabled
 
     @Test
     public void shouldBeDisabledShouldNotFailIfElementIsDisabled() {
-        steps.shouldBeDisabled("#disabledId");
+        steps.shouldBeDisabled(new BddVariable("#disabledId"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldBeDisabledShouldFailIfElementIsEnabled() {
-        steps.shouldBeDisabled(linkId);
+        steps.shouldBeDisabled(new BddVariable(linkId));
+    }
+
+    @Test
+    public void shouldBeDisabledShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("shouldBeDisabled", BddVariable.class), is(notNullValue()));
     }
 
     // selectOption
 
     @Test
     public void selectOptionShouldSelectDropDownListItem() {
-        steps.shouldHaveSelectedOption(selectId, selectedOptionText);
-        steps.selectOption(notSelectedOptionText, selectId);
-        steps.shouldHaveSelectedOption(selectId, notSelectedOptionText);
+        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
+        steps.selectOption(new BddVariable(notSelectedOptionText), new BddVariable(selectId));
+        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(notSelectedOptionText));
+    }
+
+    @Test
+    public void selectOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
 }

@@ -6,6 +6,10 @@ import static org.hamcrest.Matchers.*;
 import com.codeborne.selenide.*;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.opera.core.systems.OperaDriver;
+import com.technologyconversations.bdd.steps.util.BddDescription;
+import com.technologyconversations.bdd.steps.util.BddParam;
+import com.technologyconversations.bdd.steps.util.BddParamsBean;
+import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.jbehave.core.annotations.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +26,7 @@ import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
-public class WebSteps {
+public class WebSteps extends CommonSteps {
 
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
@@ -59,11 +63,11 @@ public class WebSteps {
     TODO Test
     */
     private WebDriver webDriver;
-    public void setWebDriver(String driver) {
+    public void setWebDriver(BddVariable driver) {
         if (driver == null) {
             webDriver = null;
         } else {
-            switch (driver.toLowerCase()) {
+            switch (driver.toString().toLowerCase()) {
                 case "firefox":
                     webDriver = new FirefoxDriver();
                     break;
@@ -100,7 +104,7 @@ public class WebSteps {
             if (getParams().containsKey("browser")) {
                 browser = getParams().get("browser");
             }
-            setWebDriver(browser);
+            setWebDriver(new BddVariable(browser));
         }
     }
     protected WebDriver getWebDriver() {
@@ -111,9 +115,9 @@ public class WebSteps {
 
     @BddDescription("Opens specified address.")
     @Given("Web address $url is opened")
-    public void open(String url) {
+    public void open(BddVariable url) {
         setWebDriver();
-        Selenide.open(url);
+        Selenide.open(url.toString());
     }
 
     @BddDescription("Opens address specified by webUrl parameter.")
@@ -128,8 +132,12 @@ public class WebSteps {
     @BddDescription("Sets timeout used when operating with elements. Default value is 4 seconds.")
     @BddParam(value = "timeout", description = "Sets timeout used when operating with elements. Default value is 4 seconds.")
     @Given("Web timeout is $seconds seconds")
-    public void setConfigTimeout(int seconds) {
-        Configuration.timeout = seconds * 1000;
+    public void setConfigTimeout(BddVariable seconds) {
+        try {
+            Configuration.timeout = Integer.parseInt(replaceTextWithVariableValues(seconds.toString())) * 1000;
+        } catch (NumberFormatException e) {
+            getLogger().info("Could not parse " + seconds + " as integer");
+        }
     }
     protected int getConfigTimeout() {
         Long value = Configuration.timeout / 1000;
@@ -137,17 +145,23 @@ public class WebSteps {
     }
 
     @BddDescription("Sets browser window size")
-    @Given("Web window size is $width width and $height height")
     @BddParam(value = "widthHeight", description = "Sets window width and height. Values should be separated by comma (i.e. 1024, 768)")
-    public void setSize(int width, int height) {
-        getWebDriver().manage().window().setSize(new Dimension(width, height));
+    @Given("Web window size is $width width and $height height")
+    public void setSize(BddVariable width, BddVariable height) {
+        try {
+            int widthFormatted = Integer.parseInt(width.toString());
+            int heightFormatted = Integer.parseInt(height.toString());
+            getWebDriver().manage().window().setSize(new Dimension(widthFormatted, heightFormatted));
+        } catch (NumberFormatException e) {
+            getLogger().info("Could not parse " + width + " or " + height + " as integer");
+        }
     }
     protected void setSize() {
         if (getParams().containsKey("widthHeight")) {
             String[] widthHeightArray = getParams().get("widthHeight").split(",");
             assertThat("widthHeight must contain two numbers separated by comma.", widthHeightArray.length, is(2));
-            int width = Integer.parseInt(widthHeightArray[0].trim());
-            int height = Integer.parseInt(widthHeightArray[1].trim());
+            BddVariable width = new BddVariable(widthHeightArray[0].trim());
+            BddVariable height = new BddVariable(widthHeightArray[1].trim());
             setSize(width, height);
         }
     }
@@ -156,112 +170,111 @@ public class WebSteps {
 
     @BddDescription("Clicks the element." + selectorsInfo)
     @When("Web user clicks the element $selector")
-    public void clickElement(String selector) {
+    public void clickElement(BddVariable selector) {
         findElement(selector).click();
     }
 
     @BddDescription("Clears the text field and sets the specified value." + selectorsInfo)
     @When("Web user sets value $value to the element $selector")
-    public void setElementValue(String value, String selector) {
-        findElement(selector).setValue(value);
+    public void setElementValue(BddVariable value, BddVariable selector) {
+        findElement(selector).setValue(value.toString());
     }
 
     @BddDescription("Appends the specified value." + selectorsInfo)
     @When("Web user appends value $value to the element $selector")
-    public void appendElementValue(String value, String selector) {
-        findElement(selector).append(value);
+    public void appendElementValue(BddVariable value, BddVariable selector) {
+        findElement(selector).append(value.toString());
     }
 
     @BddDescription("Presses enter key on a specified element" + selectorsInfo)
     @When("Web user presses the enter key in the element $selector")
-    public void pressEnter(String selector) {
+    public void pressEnter(BddVariable selector) {
         findElement(selector).pressEnter();
     }
 
     @BddDescription("Select an option from dropdown list" + selectorsInfo)
     @When("Web user selects $text from the dropdown list $selector")
-    public void selectOption(String text, String selector) {
-        findElement(selector).selectOption(text);
+    public void selectOption(BddVariable text, BddVariable selector) {
+        findElement(selector).selectOption(text.toString());
     }
 
     // Then
 
     @BddDescription("Verifies that the title of the current page is as expected.")
     @Then("Web page title is $title")
-    public void checkTitle(String title) {
-        System.out.println(title() + " " + title);
-        assertThat(title(), equalTo(title));
+    public void checkTitle(BddVariable title) {
+        assertThat(title(), equalTo(title.toString()));
     }
 
     @BddDescription("Verifies that the element text contains the specified text." +
             caseInsensitive + selectorsInfo)
     @Then("Web element $selector should have text $text")
-    public void shouldHaveText(String selector, String text) {
-        findElement(selector).shouldHave(text(text));
+    public void shouldHaveText(BddVariable selector, BddVariable text) {
+        findElement(selector).shouldHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the element text does NOT contain the specified text." +
             caseInsensitive + selectorsInfo)
     @Then("Web element $selector should NOT have text $text")
-    public void shouldNotHaveText(String selector, String text) {
-        findElement(selector).shouldNotHave(text(text));
+    public void shouldNotHaveText(BddVariable selector, BddVariable text) {
+        findElement(selector).shouldNotHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the element text matches the specified regular expression." +
             " For example, 'Hello, .*, how are you!' uses '.*' to match any text." + selectorsInfo)
     @Then("Web element $selector should have matching text $regEx")
-    public void shouldHaveMatchText(String selector, String regEx) {
-        findElement(selector).shouldHave(matchText(regEx));
+    public void shouldHaveMatchText(BddVariable selector, BddVariable regEx) {
+        findElement(selector).shouldHave(matchText(regEx.toString()));
     }
 
     @BddDescription("Verifies that the element text does NOT match the specified regular expression." + selectorsInfo)
     @Then("Web element $selector should NOT have matching text $regEx")
-    public void shouldNotHaveMatchText(String selector, String regEx) {
-        findElement(selector).shouldNotHave(matchText(regEx));
+    public void shouldNotHaveMatchText(BddVariable selector, BddVariable regEx) {
+        findElement(selector).shouldNotHave(matchText(regEx.toString()));
     }
 
     @BddDescription("Verifies that the element text is exactly the same as the specified text." +
             caseInsensitive + selectorsInfo)
     @Then("Web element $selector should have exact text $text")
-    public void shouldHaveExactText(String selector, String text) {
-        findElement(selector).shouldHave(exactText(text));
+    public void shouldHaveExactText(BddVariable selector, BddVariable text) {
+        findElement(selector).shouldHave(exactText(text.toString()));
     }
 
     @BddDescription("Verifies that the element text is NOT exactly the same as the specified text." +
             caseInsensitive + selectorsInfo)
     @Then("Web element $selector should NOT have exact text $text")
-    public void shouldNotHaveExactText(String selector, String text) {
-        findElement(selector).shouldNotHave(exactText(text));
+    public void shouldNotHaveExactText(BddVariable selector, BddVariable text) {
+        findElement(selector).shouldNotHave(exactText(text.toString()));
     }
 
     @BddDescription("Verifies that the element value is the same as specified." + selectorsInfo)
     @Then("Web element $selector should have value $value")
-    public void shouldHaveValue(String selector, String value) {
-        findElement(selector).shouldHave(value(value));
+    public void shouldHaveValue(BddVariable selector, BddVariable value) {
+        findElement(selector).shouldHave(value(value.toString()));
     }
 
     @BddDescription("Verifies that the element value is NOT the same as specified." + selectorsInfo)
     @Then("Web element $selector should NOT have value $value")
-    public void shouldNotHaveValue(String selector, String value) {
-        findElement(selector).shouldNotHave(value(value));
+    public void shouldNotHaveValue(BddVariable selector, BddVariable value) {
+        findElement(selector).shouldNotHave(value(value.toString()));
     }
 
     @BddDescription("Verifies that the text of the selected dropdown list element is the same as text")
     @Then("Web dropdown list $selector has $text selected")
-    public void shouldHaveSelectedOption(String selector, String text) {
-        findElement(selector).getSelectedOption().shouldHave(text(text));
+    public void shouldHaveSelectedOption(BddVariable selector, BddVariable text) {
+        findElement(selector).getSelectedOption().shouldHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the text of the selected dropdown list element is NOT the same as text")
     @Then("Web dropdown list $selector does NOT have $text selected")
-    public void shouldNotHaveSelectedOption(String selector, String text) {
-        findElement(selector).getSelectedOption().shouldNotHave(text(text));
+    public void shouldNotHaveSelectedOption(BddVariable selector, BddVariable text) {
+        findElement(selector).getSelectedOption().shouldNotHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the element is visible (appears) and present (exists)")
     @Then("Web element $selector is visible")
     @Alias("Web element $selector appears")
-    public void shouldBeVisible(String selector) {
+    public void shouldBeVisible(BddVariable selector) {
         findElement(selector).shouldBe(visible);
     }
 
@@ -271,62 +284,64 @@ public class WebSteps {
             "Web element $selector disappeared",
             "Web element $selector is NOT visible"
     })
-    public void shouldBeHidden(String selector) {
+    public void shouldBeHidden(BddVariable selector) {
         findElement(selector).shouldBe(hidden);
     }
 
     @BddDescription("Verifies that the element is present (exists)")
     @Then("Web element $selector is present")
     @Alias("Web element $selector exists")
-    public void shouldBePresent(String selector) {
+    public void shouldBePresent(BddVariable selector) {
         findElement(selector).shouldBe(present);
     }
 
     @BddDescription("Verifies that the element is read-only")
     @Then("Web element $selector is read-only")
-    public void shouldBeReadOnly(String selector) {
+    public void shouldBeReadOnly(BddVariable selector) {
         findElement(selector).shouldBe(readonly);
     }
 
     @BddDescription("Verifies that the element text (or value in case of input) is empty.")
     @Then("Web element $selector is empty")
-    public void shouldBeEmpty(String selector) {
+    public void shouldBeEmpty(BddVariable selector) {
         findElement(selector).shouldBe(empty);
     }
 
     @BddDescription("Verifies that the element is enabled")
     @Then("Web element $selector is enabled")
-    public void shouldBeEnabled(String selector) {
+    public void shouldBeEnabled(BddVariable selector) {
         findElement(selector).shouldBe(enabled);
     }
 
     @BddDescription("Verifies that the element is disabled")
     @Then("Web element $selector is disabled")
-    public void shouldBeDisabled(String selector) {
+    public void shouldBeDisabled(BddVariable selector) {
         findElement(selector).shouldBe(disabled);
     }
 
     // Common methods
 
-    protected SelenideElement findElement(String selector) {
+    public SelenideElement findElement(BddVariable selector) {
+        String formattedSelector = selector.toString();
         String byTextPrefix = "text:";
-        if (selector.startsWith(byTextPrefix)) {
-            return $(Selectors.byText(selector.substring(byTextPrefix.length())));
+        if (formattedSelector.startsWith(byTextPrefix)) {
+            return $(Selectors.byText(formattedSelector.substring(byTextPrefix.length())));
         } else {
-            if (Character.isLetter(selector.charAt(0))) {
-                selector = "#" + selector;
+            if (Character.isLetter(formattedSelector.charAt(0))) {
+                formattedSelector = "#" + formattedSelector;
             }
-            return $(selector);
+            return $(formattedSelector);
         }
     }
 
     @BeforeStories
     public void beforeStoriesWebSteps() {
         if (getParams().containsKey("timeout")) {
+            String timeout = getParams().get("timeout");
             try {
-                setConfigTimeout(Integer.parseInt(getParams().get("timeout")));
+                setConfigTimeout(new BddVariable(timeout));
             } catch (NumberFormatException e) {
-                // Do nothing
+                getLogger().info("Could not parse " + timeout + " as integer");
             }
         }
     }
