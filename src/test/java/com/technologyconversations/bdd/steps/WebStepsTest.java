@@ -41,8 +41,7 @@ public class WebStepsTest {
     @BeforeClass
     public static void beforeClass() {
         steps = new WebSteps();
-        steps.addVariable("browser", "htmlunit");
-        steps.setWebDriver(new BddVariable("@browser"));
+        steps.setWebDriver(new BddVariable("htmlunit"));
         File indexFile = new File("src/test/resources/index.html");
         File pageFile = new File("src/test/resources/page.html");
         indexUrl = "file:///" + indexFile.getAbsolutePath();
@@ -53,19 +52,12 @@ public class WebStepsTest {
     @Before
     public void before() {
         if (!(steps.getWebDriver() instanceof HtmlUnitDriver)) {
-            steps.setWebDriver(new BddVariable("@browser"));
+            steps.setWebDriver(new BddVariable("htmlunit"));
         }
         steps.setConfigTimeout(new BddVariable("0"));
         steps.open(new BddVariable(indexUrl));
         steps.setParams(null);
         steps.setSize(new BddVariable("100"), new BddVariable("100"));
-    }
-
-    // CommonSteps
-
-    @Test
-    public void webStepsShouldExtendCommonSteps() {
-        assertThat(steps, is(instanceOf(CommonSteps.class)));
     }
 
     // setWebDriver

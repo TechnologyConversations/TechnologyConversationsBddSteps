@@ -21,12 +21,13 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
-public class WebSteps extends CommonSteps {
+public class WebSteps {
 
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
@@ -34,6 +35,10 @@ public class WebSteps extends CommonSteps {
     // TODO Add options
     // TODO Add focused
     // TODO Add selected
+
+    public Logger getLogger() {
+        return Logger.getLogger(this.getClass().getName());
+    }
 
     private final String selectorsInfo = "\nAny CSS selector can be used to locate the element. " +
             "Most commonly used selectors are:\n" +
@@ -134,7 +139,7 @@ public class WebSteps extends CommonSteps {
     @Given("Web timeout is $seconds seconds")
     public void setConfigTimeout(BddVariable seconds) {
         try {
-            Configuration.timeout = Integer.parseInt(replaceTextWithVariableValues(seconds.toString())) * 1000;
+            Configuration.timeout = Integer.parseInt(seconds.toString()) * 1000;
         } catch (NumberFormatException e) {
             getLogger().info("Could not parse " + seconds + " as integer");
         }
