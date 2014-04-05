@@ -179,13 +179,13 @@ public class WebStepsTest {
     // setSize
 
     @Test
-    public void setSizeShouldHaveTheBddParamAnnotation() throws NoSuchMethodException {
+    public void setSizeWithWidthAndHeightShouldHaveTheBddParamAnnotation() throws NoSuchMethodException {
         BddParam bddParam = WebSteps.class.getMethod("setSize", BddVariable.class, BddVariable.class).getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("widthHeight"));
     }
 
     @Test
-    public void setSizeShouldSetWindowWidthAndHeight() {
+    public void setSizeWithWidthAndHeightShouldSetWindowWidthAndHeight() {
         String width = Integer.toString(dimension.getWidth());
         String height = Integer.toString(dimension.getHeight());
         steps.setSize(new BddVariable(width), new BddVariable(height));
@@ -194,8 +194,26 @@ public class WebStepsTest {
     }
 
     @Test
-    public void setSizeShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+    public void setSizeWithWidthAndHeightShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         assertThat(WebSteps.class.getMethod("setSize", BddVariable.class, BddVariable.class), is(notNullValue()));
+    }
+
+    @Test
+    public void setSizeShouldSetWidthAndHeightUsingParams() {
+        Dimension expected = new Dimension(453, 643);
+        steps.getParams().put("widthHeight", "453, 643");
+        steps.setSize();
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    public void setSizeShouldDoNothingIfParamWidthHeightIsNotSet() {
+        Dimension expected = steps.getWebDriver().manage().window().getSize();
+        steps.getParams().put("widthHeight", "");
+        steps.setSize();
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual, is(equalTo(expected)));
     }
 
     // open

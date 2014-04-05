@@ -163,11 +163,14 @@ public class WebSteps {
     }
     protected void setSize() {
         if (getParams().containsKey("widthHeight")) {
-            String[] widthHeightArray = getParams().get("widthHeight").split(",");
-            assertThat("widthHeight must contain two numbers separated by comma.", widthHeightArray.length, is(2));
-            BddVariable width = new BddVariable(widthHeightArray[0].trim());
-            BddVariable height = new BddVariable(widthHeightArray[1].trim());
-            setSize(width, height);
+            String widthHeight = getParams().get("widthHeight");
+            if (!widthHeight.isEmpty()) {
+                String[] widthHeightArray = widthHeight.split(",");
+                assertThat("widthHeight must contain two numbers separated by comma.", widthHeightArray.length, is(2));
+                BddVariable width = new BddVariable(widthHeightArray[0].trim());
+                BddVariable height = new BddVariable(widthHeightArray[1].trim());
+                setSize(width, height);
+            }
         }
     }
 
@@ -358,6 +361,11 @@ public class WebSteps {
             getWebDriver().close();
             getWebDriver().quit();
         }
+    }
+
+    @AsParameterConverter
+    public BddVariable createBddVariable(String value){
+        return new BddVariable(value);
     }
 
 }
