@@ -90,4 +90,57 @@ public class FileStepsTest {
         assertThat(actual.exists(), is(true));
     }
 
+    // deleteFile
+
+    @Test
+    public void deleteFileShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("deleteFile", BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void deleteFileShouldHaveGivenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("deleteFile", BddVariable.class).getAnnotation(Given.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void deleteFileShouldDeleteFile() throws IOException {
+        File actual = new File(filePath.toString());
+        actual.createNewFile();
+        steps.deleteFile(filePath);
+        assertThat(actual.exists(), is(false));
+    }
+
+    // deleteDirectory
+
+    @Test
+    public void deleteDirectoryShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("deleteDirectory", BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void deleteDirectoryShouldHaveGivenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("deleteDirectory", BddVariable.class).getAnnotation(Given.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void deleteDirectoryShouldDeleteDirectory() throws IOException {
+        File actual = new File(directoryPath.toString());
+        actual.mkdir();
+        steps.deleteDirectory(directoryPath);
+        assertThat(actual.exists(), is(false));
+    }
+
+    @Test
+    public void deleteDirectoryShouldDeleteChildDirectories() throws IOException {
+        String path = directoryPath.toString() + File.separator + "child_dir" + File.separator + "another_child_dir";
+        new File(path).mkdirs();
+        steps.deleteDirectory(directoryPath);
+        File actual = new File(directoryPath.toString());
+        assertThat(actual.exists(), is(false));
+    }
+
 }
