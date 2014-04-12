@@ -6,6 +6,9 @@ import org.jbehave.core.annotations.Given;
 import java.io.File;
 import java.io.IOException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 public class FileSteps {
 
     @Given("File $path exists")
@@ -17,12 +20,14 @@ public class FileSteps {
 
     @Given("Directory $path exists")
     public void createDirectory(BddVariable path) {
-        new File(path.toString()).mkdirs();
+        boolean actual = new File(path.toString()).mkdirs();
+        assertThat(actual, is(true));
     }
 
     @Given("File $path does NOT exist")
     public void deleteFile(BddVariable path) {
-        new File(path.toString()).delete();
+        boolean actual = new File(path.toString()).delete();
+        assertThat(actual, is(true));
     }
 
     @Given("Directory $path does NOT exist")
