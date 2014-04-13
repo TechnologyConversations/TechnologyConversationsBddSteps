@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.*;
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddParamsBean;
 import com.technologyconversations.bdd.steps.util.BddVariable;
+import org.jbehave.core.annotations.When;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +28,6 @@ public class WebStepsTest {
 
     private static WebSteps steps;
     private final String linkId = "#linkId";
-    private final String inputId = "#inputId";
     private final String selectId = "#selectId";
     private final String invisibleId = "#invisibleId";
     private final String indexTitle = "BDD Steps Test Index";
@@ -37,6 +37,7 @@ public class WebStepsTest {
     private static String indexUrl, pageUrl;
     private static Dimension dimension;
     private final String linkText = "this is LINK";
+    private final BddVariable inputSelector = new BddVariable("#inputId");
 
     @BeforeClass
     public static void beforeClass() {
@@ -446,12 +447,12 @@ public class WebStepsTest {
 
     @Test
     public void shouldHaveValueShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable("This is input"));
+        steps.shouldHaveValue(inputSelector, new BddVariable("This is input"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveValueShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable("This is non-existent value"));
+        steps.shouldHaveValue(inputSelector, new BddVariable("This is non-existent value"));
     }
 
     @Test
@@ -463,12 +464,12 @@ public class WebStepsTest {
 
     @Test
     public void shouldNotHaveValueShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable("This is non-existent text"));
+        steps.shouldNotHaveValue(inputSelector, new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveValueShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable("This is input"));
+        steps.shouldNotHaveValue(inputSelector, new BddVariable("This is input"));
     }
 
     @Test
@@ -482,17 +483,17 @@ public class WebStepsTest {
     @Test
     public void setElementValueShouldSetValueToInputElement() {
         String value = "this is new value";
-        steps.shouldNotHaveValue(new BddVariable(inputId), new BddVariable(value));
-        steps.setElementValue(new BddVariable(value), new BddVariable(inputId));
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value));
+        steps.shouldNotHaveValue(inputSelector, new BddVariable(value));
+        steps.setElementValue(new BddVariable(value), inputSelector);
+        steps.shouldHaveValue(inputSelector, new BddVariable(value));
     }
 
     @Test
     public void setElementValueShouldClearValueBeforeSettingTheNewOne() {
         String value = "this is new value";
-        steps.setElementValue(new BddVariable("some random value"), new BddVariable(inputId));
-        steps.setElementValue(new BddVariable(value), new BddVariable(inputId));
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value));
+        steps.setElementValue(new BddVariable("some random value"), inputSelector);
+        steps.setElementValue(new BddVariable(value), inputSelector);
+        steps.shouldHaveValue(inputSelector, new BddVariable(value));
     }
 
     @Test
@@ -506,10 +507,10 @@ public class WebStepsTest {
     public void appendElementValueShouldAppendValueToInputElement() {
         String value1 = "value1";
         String value2 = "value2";
-        steps.setElementValue(new BddVariable(value1), new BddVariable(inputId));
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value1));
-        steps.appendElementValue(new BddVariable(value2), new BddVariable(inputId));
-        steps.shouldHaveValue(new BddVariable(inputId), new BddVariable(value1 + value2));
+        steps.setElementValue(new BddVariable(value1), inputSelector);
+        steps.shouldHaveValue(inputSelector, new BddVariable(value1));
+        steps.appendElementValue(new BddVariable(value2), inputSelector);
+        steps.shouldHaveValue(inputSelector, new BddVariable(value1 + value2));
     }
 
     @Test
@@ -704,15 +705,43 @@ public class WebStepsTest {
     // selectOption
 
     @Test
+    public void selectOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Object actual = WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class);
+        assertThat(actual, is(notNullValue()));
+    }
+
+    @Test
+    public void selectOptionShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Object actual = WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class).getAnnotation(When.class);
+        assertThat(actual, is(notNullValue()));
+    }
+
+    @Test
     public void selectOptionShouldSelectDropDownListItem() {
         steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
         steps.selectOption(new BddVariable(notSelectedOptionText), new BddVariable(selectId));
         steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(notSelectedOptionText));
     }
 
+    // clearValue
+
     @Test
-    public void selectOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        assertThat(WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class), is(notNullValue()));
+    public void clearValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Object actual = WebSteps.class.getMethod("clearValue", BddVariable.class);
+        assertThat(actual, is(notNullValue()));
+    }
+
+    @Test
+    public void clearValueShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Object actual = WebSteps.class.getMethod("clearValue", BddVariable.class).getAnnotation(When.class);
+        assertThat(actual, is(notNullValue()));
+    }
+
+    @Test
+    public void clearValueShouldClearTheValue() {
+        steps.clearValue(inputSelector);
+        String actual = steps.findElement(inputSelector).val();
+        assertThat(actual, isEmptyString());
     }
 
 }

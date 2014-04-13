@@ -222,6 +222,11 @@ public class WebSteps {
         findElement(selector).selectOption(text.toString());
     }
 
+    @When("Web user clears the element $selector")
+    public void clearValue(BddVariable selector) {
+        findElement(selector).clear();
+    }
+
     // Then
 
     @BddDescription("Verifies that the title of the current page is as expected.")
