@@ -61,6 +61,18 @@ public class WebSteps {
         return params;
     }
 
+    private String baseUrl;
+    public String getBaseUrl() {
+        if (baseUrl == null) {
+            if (getParams().containsKey("url")) {
+                baseUrl = getParams().get("url");
+            } else {
+                baseUrl = "";
+            }
+        }
+        return baseUrl;
+    }
+
     /*
     Supported drivers are: firefox (default), chrome (the fastest, recommended), htmlunit (headless browser),
     ie, opera (slow and unstable, not recommended), phantomjs (headless browser).
@@ -122,7 +134,11 @@ public class WebSteps {
     @Given("Web address $url is opened")
     public void open(BddVariable url) {
         setWebDriver();
-        Selenide.open(url.toString());
+        String urlString = url.toString();
+        if (!urlString.toLowerCase().startsWith("http")) {
+            urlString = getBaseUrl() + urlString;
+        }
+        Selenide.open(urlString);
     }
 
     @BddDescription("Opens address specified by webUrl parameter.")

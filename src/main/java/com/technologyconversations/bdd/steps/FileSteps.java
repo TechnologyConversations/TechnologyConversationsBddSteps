@@ -2,6 +2,7 @@ package com.technologyconversations.bdd.steps;
 
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
+import org.jbehave.core.annotations.AsParameterConverter;
 import org.jbehave.core.annotations.Given;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,11 @@ public class FileSteps {
     @Given("Directory $path does NOT exist")
     public void deleteDirectory(BddVariable path) throws IOException {
         FileUtils.deleteDirectory(new File(path.toString()));
+    }
+
+    @AsParameterConverter
+    public BddVariable createBddVariable(String value){
+        return new BddVariable(value);
     }
 
 }
