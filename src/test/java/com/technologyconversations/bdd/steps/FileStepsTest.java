@@ -3,6 +3,7 @@ package com.technologyconversations.bdd.steps;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.When;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ public class FileStepsTest {
 
     private FileSteps steps;
     private BddVariable filePath;
+    private BddVariable newFilePath;
     private BddVariable directoryPath;
 
     @Before
@@ -24,6 +26,7 @@ public class FileStepsTest {
         File tmp = new File("tmp");
         tmp.mkdir();
         filePath = new BddVariable("tmp/myFile.test");
+        newFilePath = new BddVariable("tmp/newDir/myFile.test_new");
         directoryPath = new BddVariable("tmp/myDirectory");
     }
 
@@ -141,6 +144,42 @@ public class FileStepsTest {
         steps.deleteDirectory(directoryPath);
         File actual = new File(directoryPath.toString());
         assertThat(actual.exists(), is(false));
+    }
+
+    // copyFile
+
+    @Test
+    public void copyFileShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("copyFile", BddVariable.class, BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void copyFileShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("copyFile", BddVariable.class, BddVariable.class).getAnnotation(When.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void copyFileShouldCopyFile() throws IOException {
+        File from = new File(filePath.toString());
+        FileUtils.touch(from);
+        File to = new File(newFilePath.toString());
+        steps.copyFile(new BddVariable(from.getPath()), new BddVariable(to.getPath()));
+        assertThat(to.exists(), is(true));
+    }
+
+    @Test
+    public void copyFileShouldOverwriteExistingFile() throws IOException {
+        String expected = "expected content";
+        File from = new File(filePath.toString());
+        FileUtils.writeStringToFile(from, expected);
+        File to = new File(newFilePath.toString());
+        FileUtils.writeStringToFile(to, "some other content");
+
+        steps.copyFile(new BddVariable(from.getPath()), new BddVariable(to.getPath()));
+        String actual = FileUtils.readFileToString(to);
+        assertThat(actual, is(equalTo(expected)));
     }
 
 }

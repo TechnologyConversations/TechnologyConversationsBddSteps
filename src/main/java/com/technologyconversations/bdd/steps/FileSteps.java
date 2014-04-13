@@ -4,6 +4,8 @@ import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
 import org.jbehave.core.annotations.AsParameterConverter;
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.When;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -11,6 +13,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class FileSteps {
+
+    // Given
 
     @Given("File $path exists")
     public void createFile(BddVariable path) throws IOException {
@@ -34,6 +38,13 @@ public class FileSteps {
     @Given("Directory $path does NOT exist")
     public void deleteDirectory(BddVariable path) throws IOException {
         FileUtils.deleteDirectory(new File(path.toString()));
+    }
+
+    // When
+
+    @When("File is copied from $from to $to")
+    public void copyFile(BddVariable from, BddVariable to) throws IOException {
+        FileUtils.copyFile(new File(from.toString()), new File(to.toString()));
     }
 
     @AsParameterConverter
