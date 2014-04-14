@@ -170,12 +170,12 @@ public class FileStepsTest {
     }
 
     @Test
-    public void copyFileShouldOverwriteExistingFile() throws IOException {
+    public void copyFileShouldNotOverwriteExistingFile() throws IOException {
         String expected = "expected content";
         File from = new File(filePath.toString());
-        FileUtils.writeStringToFile(from, expected);
+        FileUtils.writeStringToFile(from, "some content");
         File to = new File(newFilePath.toString());
-        FileUtils.writeStringToFile(to, "some other content");
+        FileUtils.writeStringToFile(to, expected);
 
         steps.copyFile(new BddVariable(from.getPath()), new BddVariable(to.getPath()));
         String actual = FileUtils.readFileToString(to);

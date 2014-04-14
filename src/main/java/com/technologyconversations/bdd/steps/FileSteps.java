@@ -31,8 +31,7 @@ public class FileSteps {
 
     @Given("File $path does NOT exist")
     public void deleteFile(BddVariable path) {
-        boolean actual = new File(path.toString()).delete();
-        assertThat(actual, is(true));
+        new File(path.toString()).delete();
     }
 
     @Given("Directory $path does NOT exist")
@@ -44,7 +43,10 @@ public class FileSteps {
 
     @When("File is copied from $from to $to")
     public void copyFile(BddVariable from, BddVariable to) throws IOException {
-        FileUtils.copyFile(new File(from.toString()), new File(to.toString()));
+        File toFile = new File(to.toString());
+        if (!toFile.exists()) {
+            FileUtils.copyFile(new File(from.toString()), toFile);
+        }
     }
 
     @AsParameterConverter

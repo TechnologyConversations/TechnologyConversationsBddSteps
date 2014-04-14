@@ -130,6 +130,7 @@ public class WebSteps {
 
     // Given
 
+    boolean urlHasBeenOpened = false;
     @BddDescription("Opens specified address.")
     @Given("Web address $url is opened")
     public void open(BddVariable url) {
@@ -139,6 +140,7 @@ public class WebSteps {
             urlString = getBaseUrl() + urlString;
         }
         Selenide.open(urlString);
+        urlHasBeenOpened = true;
     }
 
     @BddDescription("Opens address specified by webUrl parameter.")
@@ -148,6 +150,7 @@ public class WebSteps {
         assertThat(getParams(), hasKey("url"));
         setWebDriver();
         Selenide.open(getParams().get("url"));
+        urlHasBeenOpened = true;
     }
 
     @BddDescription("Sets timeout used when operating with elements. Default value is 4 seconds.")
@@ -351,6 +354,9 @@ public class WebSteps {
     // Common methods
 
     public SelenideElement findElement(BddVariable selector) {
+        if (!urlHasBeenOpened) {
+            open();
+        }
         String formattedSelector = selector.toString();
         String byTextPrefix = "text:";
         if (formattedSelector.startsWith(byTextPrefix)) {
