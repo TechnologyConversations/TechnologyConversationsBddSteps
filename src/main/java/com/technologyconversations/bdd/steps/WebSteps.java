@@ -47,6 +47,8 @@ public class WebSteps {
             "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.\n" +
             "Additional selectors are:\n" +
             "text:my text: Matches any element with text equal to 'my text'";
+    private final String valueToVariableInfo = "\nValue will be saved as variable. " +
+            "It can be retrieved using selector as the key.";
     private final String caseInsensitive = "\nVerification is NOT case sensitive.";
 
     private Map<String, String> params;
@@ -198,36 +200,51 @@ public class WebSteps {
     @BddDescription("Clicks the element." + selectorsInfo)
     @When("Web user clicks the element $selector")
     public void clickElement(BddVariable selector) {
-        findElement(selector).click();
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.click();
     }
 
-    @BddDescription("Clears the text field and sets the specified value." + selectorsInfo)
+    @BddDescription("Clears the text field and sets the specified value." + selectorsInfo + valueToVariableInfo)
     @When("Web user sets value $value to the element $selector")
     public void setElementValue(BddVariable value, BddVariable selector) {
-        findElement(selector).setValue(value.toString());
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.setValue(value.toString());
+        CommonSteps.addVariable(selector.toString(), value.toString());
     }
 
-    @BddDescription("Appends the specified value." + selectorsInfo)
+    @BddDescription("Appends the specified value." + selectorsInfo + valueToVariableInfo)
     @When("Web user appends value $value to the element $selector")
     public void appendElementValue(BddVariable value, BddVariable selector) {
-        findElement(selector).append(value.toString());
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.append(value.toString());
+        CommonSteps.addVariable(selector.toString(), value.toString());
     }
 
     @BddDescription("Presses enter key on a specified element" + selectorsInfo)
     @When("Web user presses the enter key in the element $selector")
     public void pressEnter(BddVariable selector) {
-        findElement(selector).pressEnter();
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.pressEnter();
     }
 
-    @BddDescription("Select an option from dropdown list" + selectorsInfo)
+    @BddDescription("Select an option from dropdown list" + selectorsInfo + valueToVariableInfo)
     @When("Web user selects $text from the dropdown list $selector")
     public void selectOption(BddVariable text, BddVariable selector) {
-        findElement(selector).selectOption(text.toString());
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.selectOption(text.toString());
+        CommonSteps.addVariable(selector.toString(), text.toString());
     }
 
     @When("Web user clears the element $selector")
     public void clearValue(BddVariable selector) {
-        findElement(selector).clear();
+        SelenideElement element = findElement(selector);
+        element.scrollTo();
+        element.clear();
     }
 
     // Then
@@ -354,18 +371,24 @@ public class WebSteps {
     // Common methods
 
     public SelenideElement findElement(BddVariable selector) {
-        if (!urlHasBeenOpened) {
-            open();
-        }
+        openIfNotAlreadyOpened();
         String formattedSelector = selector.toString();
         String byTextPrefix = "text:";
+        SelenideElement element;
         if (formattedSelector.startsWith(byTextPrefix)) {
-            return $(Selectors.byText(formattedSelector.substring(byTextPrefix.length())));
+            element = $(Selectors.byText(formattedSelector.substring(byTextPrefix.length())));
         } else {
             if (Character.isLetter(formattedSelector.charAt(0))) {
                 formattedSelector = "#" + formattedSelector;
             }
-            return $(formattedSelector);
+            element = $(formattedSelector);
+        }
+        return element;
+    }
+
+    private void openIfNotAlreadyOpened() {
+        if (!urlHasBeenOpened) {
+            open();
         }
     }
 

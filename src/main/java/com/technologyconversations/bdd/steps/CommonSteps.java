@@ -16,7 +16,7 @@ public class CommonSteps {
         }
         return variableMap;
     }
-    protected void setVariableMap(final TreeMap<String, String> value) {
+    protected static void setVariableMap(final TreeMap<String, String> value) {
         variableMap = value;
     }
     @BddDescription("Adds variable with the specified key. " +
@@ -25,10 +25,10 @@ public class CommonSteps {
             "text 'Then Web element username should have text @username' would be transformed to: " +
             "'Then Web element username should have text my_user'.")
     @Given("variable $key has value $value")
-    public void addVariable(String key, String value) {
+    public static void addVariable(String key, String value) {
         getVariableMap().put(key, value);
     }
-    public String getVariable(String key) {
+    public static String getVariable(String key) {
         return getVariableMap().get(key);
     }
 

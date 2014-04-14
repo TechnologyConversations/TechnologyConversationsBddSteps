@@ -18,6 +18,8 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,16 +30,17 @@ public class WebStepsTest {
 
     private static WebSteps steps;
     private final String linkId = "#linkId";
-    private final String selectId = "#selectId";
+    private final BddVariable selectSelector = new BddVariable("#selectId");
     private final String invisibleId = "#invisibleId";
     private final String indexTitle = "BDD Steps Test Index";
     private final String pageTitle = "BDD Steps Test Page";
-    private final String notSelectedOptionText = "Option 1 Test";
-    private final String selectedOptionText = "Option 2 Test";
+    private final BddVariable notSelectedOptionText = new BddVariable("Option 1 Test");
+    private final BddVariable selectedOptionText = new BddVariable("Option 2 Test");
     private static String indexUrl, pageUrl;
     private static Dimension dimension;
     private final String linkText = "this is LINK";
     private final BddVariable inputSelector = new BddVariable("#inputId");
+    private final BddVariable value = new BddVariable("random value");
 
     @BeforeClass
     public static void beforeClass() {
@@ -59,6 +62,7 @@ public class WebStepsTest {
         steps.open(new BddVariable(indexUrl));
         steps.setParams(null);
         steps.setSize(new BddVariable("100"), new BddVariable("100"));
+        CommonSteps.setVariableMap(null);
     }
 
     // setWebDriver
@@ -481,6 +485,19 @@ public class WebStepsTest {
     // setElementValue
 
     @Test
+    public void setElementValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Method method = WebSteps.class.getMethod("setElementValue", BddVariable.class, BddVariable.class);
+        assertThat(method, is(notNullValue()));
+    }
+
+    @Test
+    public void setElementValueShouldUseWhenAnnotation() throws NoSuchMethodException {
+        Method method = WebSteps.class.getMethod("setElementValue", BddVariable.class, BddVariable.class);
+        Annotation annotation = method.getAnnotation(When.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
+    @Test
     public void setElementValueShouldSetValueToInputElement() {
         String value = "this is new value";
         steps.shouldNotHaveValue(inputSelector, new BddVariable(value));
@@ -490,15 +507,15 @@ public class WebStepsTest {
 
     @Test
     public void setElementValueShouldClearValueBeforeSettingTheNewOne() {
-        String value = "this is new value";
         steps.setElementValue(new BddVariable("some random value"), inputSelector);
-        steps.setElementValue(new BddVariable(value), inputSelector);
-        steps.shouldHaveValue(inputSelector, new BddVariable(value));
+        steps.setElementValue(value, inputSelector);
+        steps.shouldHaveValue(inputSelector, value);
     }
 
     @Test
-    public void setElementValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        assertThat(WebSteps.class.getMethod("setElementValue", BddVariable.class, BddVariable.class), is(notNullValue()));
+    public void setElementValueShouldAddVariable() {
+        steps.setElementValue(value, inputSelector);
+        assertThat(CommonSteps.getVariableMap(), hasEntry(inputSelector.toString(), value.toString()));
     }
 
     // appendElementValue
@@ -518,6 +535,11 @@ public class WebStepsTest {
         assertThat(WebSteps.class.getMethod("appendElementValue", BddVariable.class, BddVariable.class), is(notNullValue()));
     }
 
+    @Test
+    public void appendElementValueShouldAddVariable() {
+        steps.appendElementValue(value, inputSelector);
+        assertThat(CommonSteps.getVariableMap(), hasEntry(inputSelector.toString(), value.toString()));
+    }
 
     // pressEnter
 
@@ -542,12 +564,12 @@ public class WebStepsTest {
 
     @Test
     public void shouldHaveSelectedOptionShouldNotFailIfSelectedOptionMatchesText() {
-        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
+        steps.shouldHaveSelectedOption(selectSelector, selectedOptionText);
     }
 
     @Test(expected = AssertionError.class)
     public void shouldHaveSelectedOptionShouldFailIfSelectedOptionDoesNotMatchText() {
-        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(notSelectedOptionText));
+        steps.shouldHaveSelectedOption(selectSelector, notSelectedOptionText);
     }
 
     @Test
@@ -559,7 +581,7 @@ public class WebStepsTest {
 
     @Test(expected = AssertionError.class)
     public void shouldNotHaveSelectedOptionShouldFailIfSelectedOptionMatchesText() {
-        steps.shouldNotHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
+        steps.shouldNotHaveSelectedOption(selectSelector, selectedOptionText);
     }
 
     @Test
@@ -706,7 +728,7 @@ public class WebStepsTest {
 
     @Test
     public void selectOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        Object actual = WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class);
+        Method actual = WebSteps.class.getMethod("selectOption", BddVariable.class, BddVariable.class);
         assertThat(actual, is(notNullValue()));
     }
 
@@ -718,9 +740,16 @@ public class WebStepsTest {
 
     @Test
     public void selectOptionShouldSelectDropDownListItem() {
-        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(selectedOptionText));
-        steps.selectOption(new BddVariable(notSelectedOptionText), new BddVariable(selectId));
-        steps.shouldHaveSelectedOption(new BddVariable(selectId), new BddVariable(notSelectedOptionText));
+        steps.shouldHaveSelectedOption(selectSelector, selectedOptionText);
+        steps.selectOption(notSelectedOptionText, selectSelector);
+        steps.shouldHaveSelectedOption(selectSelector, notSelectedOptionText);
+    }
+
+    @Test
+    public void selectOptionShouldAddVariable() {
+        steps.selectOption(selectedOptionText, selectSelector);
+        assertThat(CommonSteps.getVariableMap(), hasEntry(selectSelector.toString(), selectedOptionText.toString()));
+        System.out.println(CommonSteps.getVariableMap().values());
     }
 
     // clearValue
