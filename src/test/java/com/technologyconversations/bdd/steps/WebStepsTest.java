@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.*;
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddParamsBean;
 import com.technologyconversations.bdd.steps.util.BddVariable;
+import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.When;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -756,14 +757,14 @@ public class WebStepsTest {
 
     @Test
     public void clearValueShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        Object actual = WebSteps.class.getMethod("clearValue", BddVariable.class);
-        assertThat(actual, is(notNullValue()));
+        Method method = WebSteps.class.getMethod("clearValue", BddVariable.class);
+        assertThat(method, is(notNullValue()));
     }
 
     @Test
     public void clearValueShouldHaveWhenAnnotation() throws NoSuchMethodException {
-        Object actual = WebSteps.class.getMethod("clearValue", BddVariable.class).getAnnotation(When.class);
-        assertThat(actual, is(notNullValue()));
+        Annotation annotation = WebSteps.class.getMethod("clearValue", BddVariable.class).getAnnotation(When.class);
+        assertThat(annotation, is(notNullValue()));
     }
 
     @Test
@@ -771,6 +772,22 @@ public class WebStepsTest {
         steps.clearValue(inputSelector);
         String actual = steps.findElement(inputSelector).val();
         assertThat(actual, isEmptyString());
+    }
+
+    // refresh
+
+    @Test
+    public void refreshShouldHaveGivenAnnotation() throws NoSuchMethodException {
+        Annotation annotation = WebSteps.class.getMethod("refresh").getAnnotation(Given.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
+    @Test
+    public void refreshShouldReloadThePage() {
+        steps.setElementValue(value, inputSelector);
+        steps.refresh();
+        String actualValue = steps.findElement(inputSelector).val();
+        assertThat(actualValue, is(not(value.toString())));
     }
 
 }

@@ -195,6 +195,11 @@ public class WebSteps {
         }
     }
 
+    @Given("Web page is refreshed")
+    public void refresh() {
+        Selenide.refresh();
+    }
+
     // When
 
     @BddDescription("Clicks the element." + selectorsInfo)
