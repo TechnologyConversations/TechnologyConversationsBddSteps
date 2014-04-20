@@ -2,7 +2,9 @@ package com.technologyconversations.bdd.steps;
 
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
+import org.jbehave.core.annotations.Alias;
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.junit.After;
 import org.junit.Before;
@@ -180,6 +182,37 @@ public class FileStepsTest {
         steps.copyFile(new BddVariable(from.getPath()), new BddVariable(to.getPath()));
         String actual = FileUtils.readFileToString(to);
         assertThat(actual, is(equalTo(expected)));
+    }
+
+    // fileExists
+
+    @Test
+    public void fileExistsShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void fileExistsShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class).getAnnotation(Then.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void fileExistsShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class).getAnnotation(Alias.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void fileExistsShouldThrowExceptionIfFileDoesNotExist() throws IOException {
+        steps.fileExists(newFilePath);
+    }
+
+    @Test
+    public void fileExistsShouldNotThrowExceptionIfFileExists() throws IOException {
+        new File(filePath.toString()).createNewFile();
+        steps.fileExists(filePath);
     }
 
 }

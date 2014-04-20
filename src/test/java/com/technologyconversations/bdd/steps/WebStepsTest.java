@@ -32,6 +32,7 @@ public class WebStepsTest {
     private static WebSteps steps;
     private final String linkId = "#linkId";
     private final BddVariable selectSelector = new BddVariable("#selectId");
+    private final BddVariable textAreaSelector = new BddVariable("#textAreaId");
     private final String invisibleId = "#invisibleId";
     private final String indexTitle = "BDD Steps Test Index";
     private final String pageTitle = "BDD Steps Test Page";
@@ -519,6 +520,13 @@ public class WebStepsTest {
         assertThat(CommonSteps.getVariableMap(), hasEntry(inputSelector.toString(), value.toString()));
     }
 
+    @Test
+    public void setElementValueShouldSetValueToTextAreaElements() {
+        steps.shouldNotHaveValue(textAreaSelector, value);
+        steps.setElementValue(value, textAreaSelector);
+        assertThat(steps.findElement(textAreaSelector).text(), is(equalTo(value.toString() + "x")));
+    }
+
     // appendElementValue
 
     @Test
@@ -548,12 +556,11 @@ public class WebStepsTest {
     public void pressEnterShouldSendEnterKeyToTheSpecifiedElement() {
         String value1 = "First line";
         String value2 = "Second line";
-        String textAreaId = "#textAreaId";
-        steps.setElementValue(new BddVariable(value1), new BddVariable(textAreaId));
-        steps.shouldHaveText(new BddVariable(textAreaId), new BddVariable(value1));
-        steps.pressEnter(new BddVariable(textAreaId));
-        steps.appendElementValue(new BddVariable(value2), new BddVariable(textAreaId));
-        steps.shouldHaveText(new BddVariable(textAreaId), new BddVariable(value1 + "\n" + value2));
+        steps.setElementValue(new BddVariable(value1), textAreaSelector);
+        steps.shouldHaveText(textAreaSelector, new BddVariable(value1));
+        steps.pressEnter(textAreaSelector);
+        steps.appendElementValue(new BddVariable(value2), textAreaSelector);
+        steps.shouldHaveText(textAreaSelector, new BddVariable(value1 + "\n" + value2));
     }
 
     @Test

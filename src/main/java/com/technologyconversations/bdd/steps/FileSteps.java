@@ -2,9 +2,7 @@ package com.technologyconversations.bdd.steps;
 
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
-import org.jbehave.core.annotations.AsParameterConverter;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.When;
+import org.jbehave.core.annotations.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +45,15 @@ public class FileSteps {
         if (!toFile.exists()) {
             FileUtils.copyFile(new File(from.toString()), toFile);
         }
+    }
+
+    // Then
+
+    @Then("File $path exists")
+    @Alias("Directory $path exists")
+    public void fileExists(BddVariable path) {
+        File file = new File(path.toString());
+        assertThat(file.exists(), is(true));
     }
 
     @AsParameterConverter
