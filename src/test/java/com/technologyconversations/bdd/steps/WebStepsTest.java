@@ -524,7 +524,7 @@ public class WebStepsTest {
     public void setElementValueShouldSetValueToTextAreaElements() {
         steps.shouldNotHaveValue(textAreaSelector, value);
         steps.setElementValue(value, textAreaSelector);
-        assertThat(steps.findElement(textAreaSelector).text(), is(equalTo(value.toString() + "x")));
+        assertThat(steps.findElement(textAreaSelector).text(), is(equalTo(value.toString())));
     }
 
     // appendElementValue

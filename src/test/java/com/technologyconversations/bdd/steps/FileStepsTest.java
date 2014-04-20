@@ -215,4 +215,35 @@ public class FileStepsTest {
         steps.fileExists(filePath);
     }
 
+    // fileDoesNotExist
+
+    @Test
+    public void fileDoesNotExistShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void fileDoesNotExistShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class).getAnnotation(Then.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void fileDoesNotExistShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class).getAnnotation(Alias.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void fileDoesNotExistShouldThrowExceptionIfFileExists() throws IOException {
+        new File(filePath.toString()).createNewFile();
+        steps.fileDoesNotExist(filePath);
+    }
+
+    @Test
+    public void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist() throws IOException {
+        steps.fileDoesNotExist(newFilePath);
+    }
+
 }
