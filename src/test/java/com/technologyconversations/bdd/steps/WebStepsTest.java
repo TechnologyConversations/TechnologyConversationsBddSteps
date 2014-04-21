@@ -797,4 +797,19 @@ public class WebStepsTest {
         assertThat(actualValue, is(not(value.toString())));
     }
 
+    // dragAndDrop
+    // TODO Test the actual functionality
+
+    @Test
+    public void dragAndDropShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Method method = WebSteps.class.getMethod("dragAndDrop", BddVariable.class, BddVariable.class);
+        assertThat(method, is(notNullValue()));
+    }
+
+    @Test
+    public void dragAndDropShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Annotation annotation = WebSteps.class.getMethod("dragAndDrop", BddVariable.class).getAnnotation(When.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
 }

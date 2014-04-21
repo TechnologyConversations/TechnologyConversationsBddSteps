@@ -252,6 +252,13 @@ public class WebSteps {
         element.clear();
     }
 
+    @When("Web user drags the element $fromSelector to the $toSelector")
+    public void dragDrop(BddVariable fromSelector, BddVariable toSelector) {
+        SelenideElement from = findElement(fromSelector);
+        SelenideElement to = findElement(toSelector);
+        Selenide.actions().dragAndDrop(from, to).perform();
+    }
+
     // Then
 
     @BddDescription("Verifies that the title of the current page is as expected.")
