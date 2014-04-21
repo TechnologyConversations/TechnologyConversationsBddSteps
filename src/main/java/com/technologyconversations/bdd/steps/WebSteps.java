@@ -253,7 +253,7 @@ public class WebSteps {
     }
 
     @When("Web user drags the element $fromSelector to the $toSelector")
-    public void dragDrop(BddVariable fromSelector, BddVariable toSelector) {
+    public void dragAndDrop(BddVariable fromSelector, BddVariable toSelector) {
         SelenideElement from = findElement(fromSelector);
         SelenideElement to = findElement(toSelector);
         Selenide.actions().dragAndDrop(from, to).perform();

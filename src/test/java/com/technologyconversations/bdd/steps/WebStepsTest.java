@@ -808,7 +808,7 @@ public class WebStepsTest {
 
     @Test
     public void dragAndDropShouldHaveWhenAnnotation() throws NoSuchMethodException {
-        Annotation annotation = WebSteps.class.getMethod("dragAndDrop", BddVariable.class).getAnnotation(When.class);
+        Annotation annotation = WebSteps.class.getMethod("dragAndDrop", BddVariable.class, BddVariable.class).getAnnotation(When.class);
         assertThat(annotation, is(notNullValue()));
     }
 
