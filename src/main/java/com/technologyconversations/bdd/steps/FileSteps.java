@@ -53,14 +53,14 @@ public class FileSteps {
     @Alias("Directory $path exists")
     public void fileExists(BddVariable path) {
         File file = new File(path.toString());
-        assertThat(file.exists(), is(true));
+        assertThat("File " + path.toString() + " does not exist", file.exists(), is(true));
     }
 
     @Then("File $path does NOT exist")
     @Alias("Directory $path does NOT exist")
     public void fileDoesNotExist(BddVariable path) {
         File file = new File(path.toString());
-        assertThat(file.exists(), is(false));
+        assertThat("File " + path.toString() + " exists", file.exists(), is(false));
     }
 
     // General
