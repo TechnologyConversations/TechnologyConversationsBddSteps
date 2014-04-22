@@ -3,9 +3,12 @@ package com.technologyconversations.bdd.steps;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
+import org.jbehave.core.annotations.Then;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.TreeMap;
 
 public class CommonStepsTest {
@@ -15,7 +18,7 @@ public class CommonStepsTest {
     @Before
     public void beforeCommonStepsTest() {
         steps = new CommonSteps();
-        steps.setVariableMap(null);
+        CommonSteps.setVariableMap(null);
     }
 
     @Test
@@ -23,7 +26,7 @@ public class CommonStepsTest {
         TreeMap<String, String> map = new TreeMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
-        steps.setVariableMap(map);
+        CommonSteps.setVariableMap(map);
         assertThat(CommonSteps.getVariableMap().size(), is(2));
         assertThat(CommonSteps.getVariableMap(), hasKey("key1"));
     }
@@ -32,13 +35,13 @@ public class CommonStepsTest {
     public void addVariableShouldAddVariableToTheMap() {
         String key = "myKey";
         String value = "my value";
-        steps.addVariable(key, value);
-        assertThat(steps.getVariable(key), is(equalTo(value)));
+        CommonSteps.addVariable(key, value);
+        assertThat(CommonSteps.getVariable(key), is(equalTo(value)));
     }
 
     @Test
     public void addVariableShouldReturnNullIfTheKeyDoesNotExist() {
-        assertThat(steps.getVariable("myKey"), is(nullValue()));
+        assertThat(CommonSteps.getVariable("myKey"), is(nullValue()));
     }
 
     @Test
@@ -53,7 +56,7 @@ public class CommonStepsTest {
         String key = "myKey";
         String value = "my value";
         String text = "@myKey";
-        steps.addVariable(key, value);
+        CommonSteps.addVariable(key, value);
         String actual = CommonSteps.replaceTextWithVariableValues(text);
         assertThat(actual, is(equalTo(value)));
     }
@@ -65,8 +68,8 @@ public class CommonStepsTest {
         String value = "my value";
         String anotherValue = "my another value";
         String text = "This is @myKey and this is @anotherKey!";
-        steps.addVariable(key, value);
-        steps.addVariable(anotherKey, anotherValue);
+        CommonSteps.addVariable(key, value);
+        CommonSteps.addVariable(anotherKey, anotherValue);
         String actual = CommonSteps.replaceTextWithVariableValues(text);
         assertThat(actual, is(equalTo("This is my value and this is my another value!")));
     }
@@ -78,8 +81,8 @@ public class CommonStepsTest {
         String value1 = "one";
         String value11 = "eleven";
         String text = "This is @myKey1 and this is @myKey11!";
-        steps.addVariable(key1, value1);
-        steps.addVariable(key11, value11);
+        CommonSteps.addVariable(key1, value1);
+        CommonSteps.addVariable(key11, value11);
         String actual = CommonSteps.replaceTextWithVariableValues(text);
         assertThat(actual, is(equalTo("This is one and this is eleven!")));
     }
@@ -90,5 +93,30 @@ public class CommonStepsTest {
         assertThat(actual, is(nullValue()));
     }
 
+    // checkVariable
+
+    @Test
+    public void checkVariableShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Method method = CommonSteps.class.getMethod("checkVariable", String.class, String.class);
+        assertThat(method, is(notNullValue()));
+    }
+
+    @Test
+    public void checkVariableShouldHaveThenAnnotation() throws NoSuchMethodException {
+        Annotation annotation = CommonSteps.class.getMethod("checkVariable", String.class, String.class).getAnnotation(Then.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
+    @Test
+    public void checkVariableShouldNotFailWhenVariableHasTheSameValueAsSpecified() {
+        CommonSteps.addVariable("myVariable", "my value");
+        steps.checkVariable("myVariable", "my value");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void checkVariableShouldFailWhenVariableHasDifferentValueThanSpecified() {
+        CommonSteps.addVariable("myVariable", "my value");
+        steps.checkVariable("myVariable", "my different value");
+    }
 
 }

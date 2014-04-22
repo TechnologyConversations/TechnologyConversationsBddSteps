@@ -4,6 +4,9 @@ import com.technologyconversations.bdd.steps.util.BddDescription;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.jbehave.core.annotations.AsParameterConverter;
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.util.TreeMap;
 
@@ -30,6 +33,11 @@ public class CommonSteps {
     }
     public static String getVariable(String key) {
         return getVariableMap().get(key);
+    }
+
+    @Then("variable $key has value $value")
+    public void checkVariable(String key, String value) {
+        assertThat(getVariable(key), is(equalTo(value)));
     }
 
     public static String replaceTextWithVariableValues(final String text) {

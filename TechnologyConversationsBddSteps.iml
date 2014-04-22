@@ -12,13 +12,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="Gradle: junit-4.11" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: hamcrest-all-1.3" level="project" />
     <orderEntry type="library" exported="" name="Gradle: jbehave-core-3.9" level="project" />
     <orderEntry type="library" exported="" name="Gradle: selenide-2.8" level="project" />
     <orderEntry type="library" exported="" name="Gradle: operadriver-1.5" level="project" />
     <orderEntry type="library" exported="" name="Gradle: phantomjsdriver-1.0.4" level="project" />
     <orderEntry type="library" exported="" name="Gradle: selenium-htmlunit-driver-2.39.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: junit-4.11" level="project" />
     <orderEntry type="library" exported="" name="Gradle: hamcrest-library-1.3" level="project" />
     <orderEntry type="library" exported="" name="Gradle: hamcrest-integration-1.3" level="project" />
     <orderEntry type="library" exported="" name="Gradle: commons-collections-3.2.1" level="project" />
@@ -79,7 +80,6 @@
     <orderEntry type="library" exported="" name="Gradle: jcip-annotations-1.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: snakeyaml-1.8" level="project" />
     <orderEntry type="library" exported="" name="Gradle: selenium-server-2.33.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: hamcrest-all-1.3" level="project" />
   </component>
 </module>
 
