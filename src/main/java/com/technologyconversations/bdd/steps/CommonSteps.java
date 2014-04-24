@@ -2,9 +2,8 @@ package com.technologyconversations.bdd.steps;
 
 import com.technologyconversations.bdd.steps.util.BddDescription;
 import com.technologyconversations.bdd.steps.util.BddVariable;
-import org.jbehave.core.annotations.AsParameterConverter;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.*;
+
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
@@ -12,15 +11,16 @@ import java.util.TreeMap;
 
 public class CommonSteps {
 
-    private static TreeMap<String, String> variableMap;
+    public static final ThreadLocal<TreeMap<String, String>> variableMap = new ThreadLocal<>();
+
     protected static TreeMap<String, String> getVariableMap() {
-        if (variableMap == null) {
-            variableMap = new TreeMap<>();
+        if (variableMap.get() == null) {
+            variableMap.set(new TreeMap<String, String>());
         }
-        return variableMap;
+        return variableMap.get();
     }
     protected static void setVariableMap(final TreeMap<String, String> value) {
-        variableMap = value;
+        variableMap.set(value);
     }
     @BddDescription("Adds variable with the specified key. " +
             "Variables can be referenced using @KEY format. " +
@@ -57,6 +57,11 @@ public class CommonSteps {
     @AsParameterConverter
     public BddVariable createBddVariable(String value){
         return new BddVariable(value);
+    }
+
+    @AfterStories
+    public void afterStoriesCommonSteps() {
+        variableMap.remove();
     }
 
 }

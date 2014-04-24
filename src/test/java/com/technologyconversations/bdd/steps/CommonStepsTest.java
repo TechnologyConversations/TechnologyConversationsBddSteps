@@ -14,11 +14,14 @@ import java.util.TreeMap;
 public class CommonStepsTest {
 
     private CommonSteps steps;
+    private final String VARIABLE_KEY = "myVariable";
+    private final String VARIABLE_VALUE = "my variable value";
 
     @Before
     public void beforeCommonStepsTest() {
         steps = new CommonSteps();
         CommonSteps.setVariableMap(null);
+        CommonSteps.addVariable(VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Test
@@ -109,14 +112,12 @@ public class CommonStepsTest {
 
     @Test
     public void checkVariableShouldNotFailWhenVariableHasTheSameValueAsSpecified() {
-        CommonSteps.addVariable("myVariable", "my value");
-        steps.checkVariable("myVariable", "my value");
+        steps.checkVariable(VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Test(expected = AssertionError.class)
     public void checkVariableShouldFailWhenVariableHasDifferentValueThanSpecified() {
-        CommonSteps.addVariable("myVariable", "my value");
-        steps.checkVariable("myVariable", "my different value");
+        steps.checkVariable(VARIABLE_KEY, "my different value");
     }
 
 }
