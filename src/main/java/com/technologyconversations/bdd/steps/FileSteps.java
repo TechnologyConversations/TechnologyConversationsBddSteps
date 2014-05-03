@@ -1,18 +1,43 @@
 package com.technologyconversations.bdd.steps;
 
+import com.technologyconversations.bdd.steps.util.BddDescription;
+import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
 import org.jbehave.core.annotations.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class FileSteps {
 
+    public Logger getLogger() {
+        return Logger.getLogger(this.getClass().getName());
+    }
+
     // Given
+
+    private long timeout = 4000;
+    @BddParam(value = "timeout", description = "Sets timeout used when operating with elements. Default value is 4 seconds.")
+    @Given("Web timeout is $seconds seconds")
+    public void setTimeoutSeconds(BddVariable seconds) {
+        try {
+            timeout = Integer.parseInt(seconds.toString()) * 1000;
+        } catch (NumberFormatException e) {
+            getLogger().info("Could not parse " + seconds + " as integer");
+        }
+    }
+    protected void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+    protected long getTimeout() {
+        return timeout;
+    }
 
     @Given("File $path exists")
     public void createFile(BddVariable path) throws IOException {
@@ -51,16 +76,28 @@ public class FileSteps {
 
     @Then("File $path exists")
     @Alias("Directory $path exists")
-    public void fileExists(BddVariable path) {
-        File file = new File(path.toString());
-        assertThat("File " + path.toString() + " does not exist", file.exists(), is(true));
+    public void fileExists(BddVariable path) throws InterruptedException {
+        validateFile(path.toString(), true);
     }
 
     @Then("File $path does NOT exist")
     @Alias("Directory $path does NOT exist")
-    public void fileDoesNotExist(BddVariable path) {
-        File file = new File(path.toString());
-        assertThat("File " + path.toString() + " exists", file.exists(), is(false));
+    public void fileDoesNotExist(BddVariable path) throws InterruptedException {
+        validateFile(path.toString(), false);
+    }
+
+    private void validateFile(String path, boolean shouldExist) throws InterruptedException {
+        File file = new File(path);
+        Date date = new Date();
+        boolean valid = (file.exists() == shouldExist);
+        while(!valid && (new Date().getTime() - date.getTime()) < this.getTimeout()) {
+            if (file.exists() == shouldExist) {
+                valid = true;
+                break;
+            }
+            Thread.sleep(500);
+        }
+        assertThat("File " + path + " exists should be " + shouldExist + ".", valid, is(true));
     }
 
     // General

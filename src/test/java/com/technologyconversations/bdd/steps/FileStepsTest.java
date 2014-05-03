@@ -1,5 +1,6 @@
 package com.technologyconversations.bdd.steps;
 
+import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
 import org.jbehave.core.annotations.Alias;
@@ -35,6 +36,39 @@ public class FileStepsTest {
     @After
     public void afterFileStepsTest() throws IOException {
         FileUtils.deleteDirectory(new File("tmp"));
+    }
+
+    // setTimeoutSeconds
+
+    @Test
+    public void setTimeoutSecondsShouldUseBddVariable() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void setTimeoutSecondsShouldHaveGivenAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class).getAnnotation(Given.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void setTimeoutSecondsShouldHaveBddParamAnnotation() throws NoSuchMethodException {
+        Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class).getAnnotation(BddParam.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public void setTimeoutSecondsShouldSetTimeout() {
+        steps.setTimeoutSeconds(new BddVariable("5"));
+        assertThat(steps.getTimeout(), is(5000l));
+    }
+
+    // getTimeout
+
+    @Test
+    public void getTimeoutShouldReturn4000ByDefault() {
+        assertThat(steps.getTimeout(), is(4000l));
     }
 
     // createFile
@@ -205,12 +239,13 @@ public class FileStepsTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void fileExistsShouldThrowExceptionIfFileDoesNotExist() throws IOException {
+    public void fileExistsShouldThrowExceptionIfFileDoesNotExist() throws IOException, InterruptedException {
+        steps.setTimeout(0);
         steps.fileExists(newFilePath);
     }
 
     @Test
-    public void fileExistsShouldNotThrowExceptionIfFileExists() throws IOException {
+    public void fileExistsShouldNotThrowExceptionIfFileExists() throws IOException, InterruptedException {
         new File(filePath.toString()).createNewFile();
         steps.fileExists(filePath);
     }
@@ -236,13 +271,14 @@ public class FileStepsTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void fileDoesNotExistShouldThrowExceptionIfFileExists() throws IOException {
+    public void fileDoesNotExistShouldThrowExceptionIfFileExists() throws IOException, InterruptedException {
+        steps.setTimeout(0);
         new File(filePath.toString()).createNewFile();
         steps.fileDoesNotExist(filePath);
     }
 
     @Test
-    public void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist() throws IOException {
+    public void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist() throws IOException, InterruptedException {
         steps.fileDoesNotExist(newFilePath);
     }
 
