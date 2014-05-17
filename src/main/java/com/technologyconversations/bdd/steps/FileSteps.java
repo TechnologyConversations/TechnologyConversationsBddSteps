@@ -48,8 +48,9 @@ public class FileSteps {
 
     @Given("Directory $path exists")
     public void createDirectory(BddVariable path) {
-        boolean actual = new File(path.toString()).mkdirs();
-        assertThat(actual, is(true));
+        File file = new File(path.toString());
+        file.mkdirs();
+        assertThat(file.exists(), is(true));
     }
 
     @Given("File $path does NOT exist")

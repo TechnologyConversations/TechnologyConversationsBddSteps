@@ -261,10 +261,16 @@ public class WebSteps {
 
     // Then
 
-    @BddDescription("Verifies that the title of the current page is as expected.")
-    @Then("Web page title is $title")
-    public void checkTitle(BddVariable title) {
-        assertThat(title(), equalTo(title.toString()));
+    @BddDescription("Verifies that the title of the current page is the same as specified text.")
+    @Then("Web page title should have exact text $text")
+    public void checkTitle(BddVariable text) {
+        assertThat(title(), equalTo(text.toString()));
+    }
+
+    @BddDescription("Verifies that the title of the current page contains the specified text.")
+    @Then("Web page title should have text $text")
+    public void checkTitleContains(BddVariable text) {
+        assertThat(title(), containsString(text.toString()));
     }
 
     @BddDescription("Verifies that the element text contains the specified text." +

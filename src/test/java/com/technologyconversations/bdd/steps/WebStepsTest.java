@@ -10,6 +10,7 @@ import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddParamsBean;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class WebStepsTest {
 
@@ -34,8 +36,8 @@ public class WebStepsTest {
     private final BddVariable selectSelector = new BddVariable("#selectId");
     private final BddVariable textAreaSelector = new BddVariable("#textAreaId");
     private final String invisibleId = "#invisibleId";
-    private final String indexTitle = "BDD Steps Test Index";
-    private final String pageTitle = "BDD Steps Test Page";
+    private final BddVariable indexTitle = new BddVariable("BDD Steps Test Index");
+    private final BddVariable pageTitle = new BddVariable("BDD Steps Test Page");
     private final BddVariable notSelectedOptionText = new BddVariable("Option 1 Test");
     private final BddVariable selectedOptionText = new BddVariable("Option 2 Test");
     private static String indexUrl, pageUrl;
@@ -227,9 +229,9 @@ public class WebStepsTest {
 
     @Test
     public void openWithUrlShouldRedirectToTheSpecifiedUrl() {
-        steps.checkTitle(new BddVariable(indexTitle));
+        steps.checkTitle(indexTitle);
         steps.open(new BddVariable(pageUrl));
-        steps.checkTitle(new BddVariable(pageTitle));
+        steps.checkTitle(pageTitle);
     }
 
     @Test(expected = AssertionError.class)
@@ -239,10 +241,10 @@ public class WebStepsTest {
 
     @Test
     public void openShouldRedirectToTheWebUrlSpecifiedAsParam() {
-        steps.checkTitle(new BddVariable(indexTitle));
+        steps.checkTitle(indexTitle);
         steps.getParams().put("url", pageUrl);
         steps.open();
-        steps.checkTitle(new BddVariable(pageTitle));
+        steps.checkTitle(pageTitle);
     }
 
     @Test
@@ -269,23 +271,23 @@ public class WebStepsTest {
 
     @Test
     public void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
-        steps.checkTitle(new BddVariable(indexTitle));
+        steps.checkTitle(indexTitle);
         steps.clickElement(new BddVariable(linkId));
-        steps.checkTitle(new BddVariable(pageTitle));
+        steps.checkTitle(pageTitle);
     }
 
     @Test
     public void clickElementShouldUseCssSelectorIfSelectorItStartsWithDot() {
-        steps.checkTitle(new BddVariable(indexTitle));
+        steps.checkTitle(indexTitle);
         steps.clickElement(new BddVariable(".linkClass"));
-        steps.checkTitle(new BddVariable(pageTitle));
+        steps.checkTitle(pageTitle);
     }
 
     @Test
     public void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
-        steps.checkTitle(new BddVariable(indexTitle));
+        steps.checkTitle(indexTitle);
         steps.clickElement(new BddVariable(linkId));
-        steps.checkTitle(new BddVariable(pageTitle));
+        steps.checkTitle(pageTitle);
     }
 
     @Test
@@ -810,6 +812,54 @@ public class WebStepsTest {
     public void dragAndDropShouldHaveWhenAnnotation() throws NoSuchMethodException {
         Annotation annotation = WebSteps.class.getMethod("dragAndDrop", BddVariable.class, BddVariable.class).getAnnotation(When.class);
         assertThat(annotation, is(notNullValue()));
+    }
+
+    // checkTitle
+
+    @Test
+    public void checkTitleShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Method method = WebSteps.class.getMethod("checkTitle", BddVariable.class);
+        assertThat(method, is(notNullValue()));
+    }
+
+    @Test
+    public void checkTitleShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Annotation annotation = WebSteps.class.getMethod("checkTitle", BddVariable.class).getAnnotation(Then.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void checkTitleShouldFailWhenThereIsNoExactMatch() {
+        steps.checkTitle(pageTitle);
+    }
+
+    @Test
+    public void checkTitleShouldNotFailWhenThereIsExactMatch() {
+        steps.checkTitle(indexTitle);
+    }
+
+    // checkTitleContains
+
+    @Test
+    public void checkTitleContainsShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        Method method = WebSteps.class.getMethod("checkTitleContains", BddVariable.class);
+        assertThat(method, is(notNullValue()));
+    }
+
+    @Test
+    public void checkTitleContainsShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Annotation annotation = WebSteps.class.getMethod("checkTitleContains", BddVariable.class).getAnnotation(Then.class);
+        assertThat(annotation, is(notNullValue()));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void checkTitleContainsShouldFailWhenThereIsNoExactMatch() {
+        steps.checkTitleContains(new BddVariable("Page"));
+    }
+
+    @Test
+    public void checkTitleContainsShouldNotFailWhenThereIsExactMatch() {
+        steps.checkTitleContains(new BddVariable("Index"));
     }
 
 }
