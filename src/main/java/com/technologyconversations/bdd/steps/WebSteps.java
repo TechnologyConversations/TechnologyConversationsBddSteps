@@ -6,10 +6,7 @@ import static org.hamcrest.Matchers.*;
 import com.codeborne.selenide.*;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.opera.core.systems.OperaDriver;
-import com.technologyconversations.bdd.steps.util.BddDescription;
-import com.technologyconversations.bdd.steps.util.BddParam;
-import com.technologyconversations.bdd.steps.util.BddParamsBean;
-import com.technologyconversations.bdd.steps.util.BddVariable;
+import com.technologyconversations.bdd.steps.util.*;
 import org.jbehave.core.annotations.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -83,7 +80,7 @@ public class WebSteps {
     */
     private WebDriver webDriver;
     public void setWebDriver(BddVariable driver) {
-        if (driver == null) {
+        if (driver == null || driver.toString().isEmpty()) {
             webDriver = null;
         } else {
             switch (driver.toString().toLowerCase()) {
@@ -116,7 +113,13 @@ public class WebSteps {
     }
     @BddParam(value = "browser", description = "Supported drivers are: firefox (default), " +
             "chrome (the fastest, recommended), htmlunit (headless browser), ie, " +
-            "opera (slow and unstable, not recommended), phantomjs (headless browser).")
+            "opera (slow and unstable, not recommended), phantomjs (headless browser)."
+            , options = {@BddOptionParam(text="Mozilla Firefox", value="firefox", isSelected = true),
+                         @BddOptionParam(text="Google Chrome", value="chrome", isSelected = false),
+                         @BddOptionParam(text="HTML Unit", value="htmlunit", isSelected = false),
+                         @BddOptionParam(text="Internet Explorer", value="ie", isSelected = false),
+                         @BddOptionParam(text="Opera", value="opera", isSelected = false),
+                         @BddOptionParam(text="Phantom JS", value="phantomjs", isSelected = false)})
     public void setWebDriver() {
         if (getWebDriver() == null) {
             String browser = "firefox";

@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
@@ -76,6 +77,14 @@ public class WebStepsTest {
         BddParam bddParam = WebSteps.class.getMethod("setWebDriver").getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("browser"));
     }
+
+    @Test
+    public void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws NoSuchMethodException {
+        steps.setWebDriver(null);
+        steps.setWebDriver();
+        assertThat(steps.getWebDriver(), is(instanceOf(FirefoxDriver.class)));
+    }
+
 
     @Test
     public void setWebDriverShouldSetWebDriver() {
