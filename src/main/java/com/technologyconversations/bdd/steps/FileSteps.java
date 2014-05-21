@@ -1,6 +1,5 @@
 package com.technologyconversations.bdd.steps;
 
-import com.technologyconversations.bdd.steps.util.BddDescription;
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +23,7 @@ public class FileSteps {
 
     private long timeout = 4000;
     @BddParam(value = "timeout", description = "Sets timeout used when operating with elements. Default value is 4 seconds.")
-    @Given("Web timeout is $seconds seconds")
+    @Given("File timeout is $seconds seconds")
     public void setTimeoutSeconds(BddVariable seconds) {
         try {
             timeout = Integer.parseInt(seconds.toString()) * 1000;

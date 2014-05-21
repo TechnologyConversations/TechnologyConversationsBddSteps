@@ -207,6 +207,12 @@ public class WebSteps {
     public void clickElement(BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
+        // TODO Figure out a better way
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            // Do nothing
+        }
         element.click();
     }
 
@@ -410,15 +416,11 @@ public class WebSteps {
         }
     }
 
-    @BeforeStories
-    public void beforeStoriesWebSteps() {
+    @BeforeScenario
+    public void beforeScenarioWebSteps() {
         if (getParams().containsKey("timeout")) {
             String timeout = getParams().get("timeout");
-            try {
-                setConfigTimeout(new BddVariable(timeout));
-            } catch (NumberFormatException e) {
-                getLogger().info("Could not parse " + timeout + " as integer");
-            }
+            setConfigTimeout(new BddVariable(timeout));
         }
     }
 

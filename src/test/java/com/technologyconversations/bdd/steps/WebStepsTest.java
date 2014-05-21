@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class WebStepsTest {
 
@@ -127,18 +126,18 @@ public class WebStepsTest {
     // BeforeStories
 
     @Test
-    public void beforeStoriesShouldSetTimeoutWithValueFromParamTimeout() {
+    public void beforeScenarioShouldSetTimeoutWithValueFromParamTimeout() {
         assertThat(steps.getConfigTimeout(), is(0));
         steps.getParams().put("timeout", "10");
-        steps.beforeStoriesWebSteps();
+        steps.beforeScenarioWebSteps();
         assertThat(steps.getConfigTimeout(), is(10));
     }
 
     @Test
-    public void beforeStoriesShouldDoNothingParamTimeoutIsNotInteger() {
+    public void beforeScenarioShouldDoNothingParamTimeoutIsNotInteger() {
         assertThat(steps.getConfigTimeout(), is(0));
         steps.getParams().put("timeout", "ten");
-        steps.beforeStoriesWebSteps();
+        steps.beforeScenarioWebSteps();
         assertThat(steps.getConfigTimeout(), is(0));
     }
 
