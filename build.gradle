@@ -1,6 +1,7 @@
 apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'signing'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
 
 group = 'com.technologyconversations'
 version = '0.2'
@@ -21,73 +22,3 @@ dependencies {
     compile 'com.github.detro.ghostdriver:phantomjsdriver:1.0.4'
     compile 'org.apache.commons:commons-io:1.3.2'
 }
-
-// Maven publish
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    archives jar
-    archives javadocJar
-    archives sourcesJar
-}
-
-// signing {
-//     sign configurations.archives
-// }
-// 
-// uploadArchives {
-//     repositories {
-//         mavenDeployer {
-//             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-// 
-//             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                 authentication(userName: sonatypeUsername, password: sonatypePassword)
-//             }
-// 
-//             pom.project {
-//                 name 'bddsteps'
-//                 packaging 'jar'
-//                 description 'Technology Conversations BDD (Behaviour Driven Development) Steps'
-//                 url 'http://technologyconversations.com/'
-// 
-//                 scm {
-//                     url 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
-//                     connection 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
-//                     developerConnection 'scm:git@github.com:vfarcic/TechnologyConversationsBddSteps.git'
-//                 }
-// 
-//                 licenses {
-//                     license {
-//                         name 'The Apache Software License, Version 2.0'
-//                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//                         distribution 'repo'
-//                     }
-//                 }
-// 
-//                 developers {
-//                     developer {
-//                         id 'vfarcic'
-//                         name 'Viktor Farcic'
-//                     }
-//                     developer {
-//                         id 'agarcia'
-//                         name 'Alex Garcia'
-//                     }
-//                     developer {
-//                         id 'jfalguera'
-//                         name 'Jordi Falguera'
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
