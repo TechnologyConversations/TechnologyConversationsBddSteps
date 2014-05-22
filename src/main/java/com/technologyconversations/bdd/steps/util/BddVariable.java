@@ -4,15 +4,15 @@ import com.technologyconversations.bdd.steps.CommonSteps;
 
 public class BddVariable {
 
-    private String value;
+    private String variableValue;
 
-    public BddVariable(String value) {
-        this.value = CommonSteps.replaceTextWithVariableValues(value);
+    public BddVariable(final String value) {
+        this.variableValue = CommonSteps.replaceTextWithVariableValues(value);
     }
 
     @Override
-    public String toString() {
-        return value;
+    public final String toString() {
+        return variableValue;
     }
 
 }

@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -24,7 +25,8 @@ public class FileStepsTest {
     private BddVariable directoryPath;
 
     @Before
-    public void beforeFileStepsTest() {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public final void beforeFileStepsTest() {
         steps = new FileSteps();
         File tmp = new File("tmp");
         tmp.mkdir();
@@ -34,66 +36,68 @@ public class FileStepsTest {
     }
 
     @After
-    public void afterFileStepsTest() throws IOException {
+    public final void afterFileStepsTest() throws IOException {
         FileUtils.deleteDirectory(new File("tmp"));
     }
 
     // setTimeoutSeconds
 
     @Test
-    public void setTimeoutSecondsShouldUseBddVariable() throws NoSuchMethodException {
+    public final void setTimeoutSecondsShouldUseBddVariable() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void setTimeoutSecondsShouldHaveGivenAnnotation() throws NoSuchMethodException {
+    public final void setTimeoutSecondsShouldHaveGivenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class).getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void setTimeoutSecondsShouldHaveBddParamAnnotation() throws NoSuchMethodException {
+    public final void setTimeoutSecondsShouldHaveBddParamAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class).getAnnotation(BddParam.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void setTimeoutSecondsShouldSetTimeout() {
-        steps.setTimeoutSeconds(new BddVariable("5"));
-        assertThat(steps.getTimeout(), is(5000l));
+    public final void setTimeoutSecondsShouldSetTimeout() {
+        final int timeout = 5;
+        long timeoutMilliseconds = timeout * FileSteps.MILLISECONDS_IN_SECOND;
+        steps.setTimeoutSeconds(new BddVariable(Integer.toString(timeout)));
+        assertThat(steps.getTimeout(), is(timeoutMilliseconds));
     }
 
     // getTimeout
 
     @Test
-    public void getTimeoutShouldReturn4000ByDefault() {
-        assertThat(steps.getTimeout(), is(4000l));
+    public final void getTimeoutShouldReturnDefaultValue() {
+        assertThat(steps.getTimeout(), is(FileSteps.DEFAULT_TIMEOUT));
     }
 
     // createFile
 
     @Test
-    public void createFileShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+    public final void createFileShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("createFile", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void createFileShouldHaveGivenAnnotation() throws NoSuchMethodException {
+    public final void createFileShouldHaveGivenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("createFile", BddVariable.class).getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void createFileShouldCreateFile() throws IOException {
+    public final void createFileShouldCreateFile() throws IOException {
         steps.createFile(filePath);
         File actual = new File(filePath.toString());
         assertThat(actual.exists(), is(true));
     }
 
     @Test
-    public void createFileShouldCreateParentDirectories() throws IOException {
+    public final void createFileShouldCreateParentDirectories() throws IOException {
         String actualPath = "tmp" + File.separator + "non_existing_dir" + File.separator + "myFile.test";
         steps.createFile(new BddVariable(actualPath));
         File actual = new File(actualPath);
@@ -103,26 +107,26 @@ public class FileStepsTest {
     // createDirectory
 
     @Test
-    public void createDirectoryShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+    public final void createDirectoryShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("createDirectory", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void createDirectoryShouldHaveGivenAnnotation() throws NoSuchMethodException {
+    public final void createDirectoryShouldHaveGivenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("createDirectory", BddVariable.class).getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void createDirectoryShouldCreateDirectory() throws IOException {
+    public final void createDirectoryShouldCreateDirectory() throws IOException {
         steps.createDirectory(directoryPath);
         File actual = new File(directoryPath.toString());
         assertThat(actual.exists(), is(true));
     }
 
     @Test
-    public void createDirectoryShouldCreateParentDirectories() throws IOException {
+    public final void createDirectoryShouldCreateParentDirectories() throws IOException {
         String actualPath = "tmp" + File.separator + "non_existing_dir" + File.separator + "another_non_existing_dir";
         steps.createDirectory(new BddVariable(actualPath));
         File actual = new File(actualPath);
@@ -132,19 +136,20 @@ public class FileStepsTest {
     // deleteFile
 
     @Test
-    public void deleteFileShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+    public final void deleteFileShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("deleteFile", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void deleteFileShouldHaveGivenAnnotation() throws NoSuchMethodException {
+    public final void deleteFileShouldHaveGivenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("deleteFile", BddVariable.class).getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void deleteFileShouldDeleteFile() throws IOException {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public final void deleteFileShouldDeleteFile() throws IOException {
         File actual = new File(filePath.toString());
         actual.createNewFile();
         steps.deleteFile(filePath);
@@ -154,19 +159,20 @@ public class FileStepsTest {
     // deleteDirectory
 
     @Test
-    public void deleteDirectoryShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
+    public final void deleteDirectoryShouldUseBddVariablePathAsArgument() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("deleteDirectory", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void deleteDirectoryShouldHaveGivenAnnotation() throws NoSuchMethodException {
+    public final void deleteDirectoryShouldHaveGivenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("deleteDirectory", BddVariable.class).getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void deleteDirectoryShouldDeleteDirectory() throws IOException {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public final void deleteDirectoryShouldDeleteDirectory() throws IOException {
         File actual = new File(directoryPath.toString());
         actual.mkdir();
         steps.deleteDirectory(directoryPath);
@@ -174,7 +180,8 @@ public class FileStepsTest {
     }
 
     @Test
-    public void deleteDirectoryShouldDeleteChildDirectories() throws IOException {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public final void deleteDirectoryShouldDeleteChildDirectories() throws IOException {
         String path = directoryPath.toString() + File.separator + "child_dir" + File.separator + "another_child_dir";
         new File(path).mkdirs();
         steps.deleteDirectory(directoryPath);
@@ -185,19 +192,20 @@ public class FileStepsTest {
     // copyFile
 
     @Test
-    public void copyFileShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+    public final void copyFileShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("copyFile", BddVariable.class, BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void copyFileShouldHaveWhenAnnotation() throws NoSuchMethodException {
-        Object actual = FileSteps.class.getMethod("copyFile", BddVariable.class, BddVariable.class).getAnnotation(When.class);
+    public final void copyFileShouldHaveWhenAnnotation() throws NoSuchMethodException {
+        Method method = FileSteps.class.getMethod("copyFile", BddVariable.class, BddVariable.class);
+        Object actual = method.getAnnotation(When.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void copyFileShouldCopyFile() throws IOException {
+    public final void copyFileShouldCopyFile() throws IOException {
         File from = new File(filePath.toString());
         FileUtils.touch(from);
         File to = new File(newFilePath.toString());
@@ -206,7 +214,7 @@ public class FileStepsTest {
     }
 
     @Test
-    public void copyFileShouldNotOverwriteExistingFile() throws IOException {
+    public final void copyFileShouldNotOverwriteExistingFile() throws IOException {
         String expected = "expected content";
         File from = new File(filePath.toString());
         FileUtils.writeStringToFile(from, "some content");
@@ -221,31 +229,32 @@ public class FileStepsTest {
     // fileExists
 
     @Test
-    public void fileExistsShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+    public final void fileExistsShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void fileExistsShouldHaveWhenAnnotation() throws NoSuchMethodException {
+    public final void fileExistsShouldHaveWhenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class).getAnnotation(Then.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void fileExistsShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
+    public final void fileExistsShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileExists", BddVariable.class).getAnnotation(Alias.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test(expected = AssertionError.class)
-    public void fileExistsShouldThrowExceptionIfFileDoesNotExist() throws IOException, InterruptedException {
+    public final void fileExistsShouldThrowExceptionIfFileDoesNotExist() throws IOException, InterruptedException {
         steps.setTimeout(0);
         steps.fileExists(newFilePath);
     }
 
     @Test
-    public void fileExistsShouldNotThrowExceptionIfFileExists() throws IOException, InterruptedException {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    public final void fileExistsShouldNotThrowExceptionIfFileExists() throws IOException, InterruptedException {
         new File(filePath.toString()).createNewFile();
         steps.fileExists(filePath);
     }
@@ -253,32 +262,34 @@ public class FileStepsTest {
     // fileDoesNotExist
 
     @Test
-    public void fileDoesNotExistShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+    public final void fileDoesNotExistShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void fileDoesNotExistShouldHaveWhenAnnotation() throws NoSuchMethodException {
+    public final void fileDoesNotExistShouldHaveWhenAnnotation() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class).getAnnotation(Then.class);
         assertThat(actual, is(not(nullValue())));
     }
 
     @Test
-    public void fileDoesNotExistShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
+    public final void fileDoesNotExistShouldHaveAliasAnnotationForDirectory() throws NoSuchMethodException {
         Object actual = FileSteps.class.getMethod("fileDoesNotExist", BddVariable.class).getAnnotation(Alias.class);
         assertThat(actual, is(not(nullValue())));
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @Test(expected = AssertionError.class)
-    public void fileDoesNotExistShouldThrowExceptionIfFileExists() throws IOException, InterruptedException {
+    public final void fileDoesNotExistShouldThrowExceptionIfFileExists() throws IOException, InterruptedException {
         steps.setTimeout(0);
         new File(filePath.toString()).createNewFile();
         steps.fileDoesNotExist(filePath);
     }
 
     @Test
-    public void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist() throws IOException, InterruptedException {
+    public final void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist()
+            throws IOException, InterruptedException {
         steps.fileDoesNotExist(newFilePath);
     }
 

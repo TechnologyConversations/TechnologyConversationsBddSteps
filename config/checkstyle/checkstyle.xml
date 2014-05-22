@@ -31,6 +31,7 @@
 -->
 
 <module name="Checker">
+    <module name="SuppressionCommentFilter"/>
     <!--
         If you set the basedir property below, then all reported file
         names will be relative to the specified directory. See
@@ -76,6 +77,7 @@
     <!-- </module> -->
 
     <module name="TreeWalker">
+        <module name="FileContentsHolder"/>
 
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
