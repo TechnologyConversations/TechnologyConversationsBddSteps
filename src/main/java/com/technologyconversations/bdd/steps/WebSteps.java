@@ -435,10 +435,7 @@ public class WebSteps {
     @AfterStories
     public final void afterStoriesWebSteps() {
         WebDriverRunner.closeWebDriver();
-        if (getWebDriver() != null) {
-            getWebDriver().close();
-            getWebDriver().quit();
-        }
+        webDriver = null;
     }
 
     @AsParameterConverter

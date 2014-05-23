@@ -30,7 +30,7 @@ public class CommonStepsTest {
         map.put("key1", "value1");
         map.put("key2", "value2");
         CommonSteps.setVariableMap(map);
-        assertThat(CommonSteps.getVariableMap().size(), is(2));
+        assertThat(CommonSteps.getVariableMap().size(), is(map.size()));
         assertThat(CommonSteps.getVariableMap(), hasKey("key1"));
     }
 

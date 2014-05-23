@@ -31,7 +31,7 @@ public class WebStepsTest {
     // TODO Test with all browsers
 
     private static WebSteps steps;
-    private static final String LINK_ID = "#linkId";
+    private static final BddVariable LINK_ID = new BddVariable("#linkId");
     private final BddVariable selectSelector = new BddVariable("#selectId");
     private final BddVariable textAreaSelector = new BddVariable("#textAreaId");
     private static final String INVISIBLE_ID = "#invisibleId";
@@ -50,7 +50,6 @@ public class WebStepsTest {
     @BeforeClass
     public static void beforeClass() {
         steps = new WebSteps();
-        steps.setWebDriver(new BddVariable("htmlunit"));
         File indexFile = new File("src/test/resources/index.html");
         File pageFile = new File("src/test/resources/page.html");
         indexUrl = "file:///" + indexFile.getAbsolutePath();
@@ -60,6 +59,9 @@ public class WebStepsTest {
 
     @Before
     public final void before() {
+        if (steps.getWebDriver() == null) {
+            steps.setWebDriver(new BddVariable("htmlunit"));
+        }
         if (!(steps.getWebDriver() instanceof HtmlUnitDriver)) {
             steps.setWebDriver(new BddVariable("htmlunit"));
         }
@@ -105,6 +107,11 @@ public class WebStepsTest {
     @Test
     public final void setWebDriverShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         assertThat(WebSteps.class.getMethod("setWebDriver", BddVariable.class), is(notNullValue()));
+    }
+
+    @Test
+    public final void setWebDriverShouldAcceptNullAsDriver() {
+        steps.setWebDriver(null);
     }
 
     // setParams
@@ -221,6 +228,14 @@ public class WebStepsTest {
     }
 
     @Test
+    public final void setSizeShouldNotThrowException() {
+        Dimension expected = steps.getWebDriver().manage().window().getSize();
+        steps.setSize(new BddVariable("123"), new BddVariable("xxx"));
+        Dimension actual = steps.getWebDriver().manage().window().getSize();
+        assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
     public final void setSizeShouldSetWidthAndHeightUsingParams() {
         final int width = 453;
         final int height = 643;
@@ -287,7 +302,7 @@ public class WebStepsTest {
     @Test
     public final void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
         steps.checkTitle(indexTitle);
-        steps.clickElement(new BddVariable(LINK_ID));
+        steps.clickElement(LINK_ID);
         steps.checkTitle(pageTitle);
     }
 
@@ -301,7 +316,7 @@ public class WebStepsTest {
     @Test
     public final void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
         steps.checkTitle(indexTitle);
-        steps.clickElement(new BddVariable(LINK_ID));
+        steps.clickElement(LINK_ID);
         steps.checkTitle(pageTitle);
     }
 
@@ -313,37 +328,48 @@ public class WebStepsTest {
     // findElement
 
     @Test
+    public final void findElementShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+        assertThat(WebSteps.class.getMethod("findElement", BddVariable.class), is(notNullValue()));
+    }
+
+    @Test
+    public final void findElementShouldUseCssSelectors() {
+        SelenideElement element = steps.findElement(LINK_ID);
+        assertThat(element.exists(), is(true));
+    }
+
+    @Test
+    public final void findElementShouldAssumeThatSelectorIsByIdIfNoneIsSpecified() {
+        SelenideElement element = steps.findElement(new BddVariable("linkId"));
+        assertThat(element.exists(), is(true));
+    }
+
+    @Test
     public final void findElementShouldUseByTextIfSelectorStartsWithTextColon() {
         SelenideElement element = steps.findElement(new BddVariable("text:This is div"));
         assertThat(element.exists(), is(true));
     }
 
-    @Test
-    public final void findElementShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        assertThat(WebSteps.class.getMethod("findElement", BddVariable.class), is(notNullValue()));
-    }
-
-
     // shouldHaveText
 
     @Test
     public final void shouldHaveTextShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldHaveText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldHaveTextShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldHaveText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test
     public final void shouldHaveTextShouldPassIfElementTextContainsSpecifiedText() {
-        steps.shouldHaveText(new BddVariable(LINK_ID), new BddVariable("This is"));
+        steps.shouldHaveText(LINK_ID, new BddVariable("This is"));
     }
 
     @Test
     public final void shouldHaveTextShouldBeCaseInsensitive() {
-        steps.shouldHaveText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldHaveText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test
@@ -356,22 +382,22 @@ public class WebStepsTest {
 
     @Test
     public final void shouldNotHaveTextShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldNotHaveText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveTextShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldNotHaveText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveTextShouldFailIfElementContainsSpecifiedText() {
-        steps.shouldNotHaveText(new BddVariable(LINK_ID), new BddVariable("This is"));
+        steps.shouldNotHaveText(LINK_ID, new BddVariable("This is"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveTextShouldBeCaseInsensitive() {
-        steps.shouldNotHaveText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldNotHaveText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test
@@ -384,22 +410,22 @@ public class WebStepsTest {
 
     @Test
     public final void shouldHaveExactTextShouldPassIfElementTextIsTheSame() {
-        steps.shouldHaveExactText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldHaveExactText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldHaveExactTextShouldFailIfElementTextIsNotTheSame() {
-        steps.shouldHaveExactText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldHaveExactText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldHaveExactTextShouldFailIfElementTextContainsSpecifiedText() {
-        steps.shouldHaveExactText(new BddVariable(LINK_ID), new BddVariable("This is"));
+        steps.shouldHaveExactText(LINK_ID, new BddVariable("This is"));
     }
 
     @Test
     public final void shouldHaveExactTextShouldBeCaseInsensitive() {
-        steps.shouldHaveExactText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldHaveExactText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test
@@ -412,22 +438,22 @@ public class WebStepsTest {
 
     @Test
     public final void shouldNotHaveExactTextShouldPassIfElementTextIsNotTheSame() {
-        steps.shouldNotHaveExactText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldNotHaveExactText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveExactTextShouldFailIfElementTextIsTheSame() {
-        steps.shouldNotHaveExactText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldNotHaveExactText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test
     public final void shouldNotHaveExactTextShouldPassIfElementContainsSpecifiedText() {
-        steps.shouldNotHaveExactText(new BddVariable(LINK_ID), new BddVariable("This is"));
+        steps.shouldNotHaveExactText(LINK_ID, new BddVariable("This is"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveExactTextShouldBeCaseInsensitive() {
-        steps.shouldNotHaveExactText(new BddVariable(LINK_ID), new BddVariable(LINK_TEXT));
+        steps.shouldNotHaveExactText(LINK_ID, new BddVariable(LINK_TEXT));
     }
 
     @Test
@@ -440,12 +466,12 @@ public class WebStepsTest {
 
     @Test
     public final void shouldHaveMatchTextShouldPassIfThereIsMatch() {
-        steps.shouldHaveMatchText(new BddVariable(LINK_ID), new BddVariable("This .* link"));
+        steps.shouldHaveMatchText(LINK_ID, new BddVariable("This .* link"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldHaveMatchTextShouldFailIfThereIsNoMatch() {
-        steps.shouldHaveMatchText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldHaveMatchText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test
@@ -458,12 +484,12 @@ public class WebStepsTest {
 
     @Test
     public final void shouldNotHaveMatchTextShouldPassIfThereIsNoMatch() {
-        steps.shouldNotHaveMatchText(new BddVariable(LINK_ID), new BddVariable("This is non-existent text"));
+        steps.shouldNotHaveMatchText(LINK_ID, new BddVariable("This is non-existent text"));
     }
 
     @Test(expected = AssertionError.class)
     public final void shouldNotHaveMatchTextShouldFailIfThereIsMatch() {
-        steps.shouldNotHaveMatchText(new BddVariable(LINK_ID), new BddVariable("This .* link"));
+        steps.shouldNotHaveMatchText(LINK_ID, new BddVariable("This .* link"));
     }
 
     @Test
@@ -620,6 +646,11 @@ public class WebStepsTest {
     }
 
     @Test
+    public final void shouldNotHaveSelectedOptionShouldNotFailIfSelectedOptionMatchesText() {
+        steps.shouldNotHaveSelectedOption(selectSelector, new BddVariable("thisDoesNotExist"));
+    }
+
+    @Test
     public final void shouldNotHaveSelectedOptionShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         Method method = WebSteps.class.getMethod("shouldNotHaveSelectedOption", BddVariable.class, BddVariable.class);
         assertThat(method, is(notNullValue()));
@@ -629,7 +660,7 @@ public class WebStepsTest {
 
     @Test
     public final void shouldBeVisibleShouldNotFailIfElementIsVisible() {
-        steps.shouldBeVisible(new BddVariable(LINK_ID));
+        steps.shouldBeVisible(LINK_ID);
     }
 
     @Test(expected = AssertionError.class)
@@ -651,7 +682,7 @@ public class WebStepsTest {
 
     @Test(expected = AssertionError.class)
     public final void shouldBeHiddenShouldFailIfElementIsVisible() {
-        steps.shouldBeHidden(new BddVariable(LINK_ID));
+        steps.shouldBeHidden(LINK_ID);
     }
 
     @Test
@@ -673,7 +704,7 @@ public class WebStepsTest {
 
     @Test
     public final void shouldBePresentShouldNotFailIfElementIsPresent() {
-        steps.shouldBePresent(new BddVariable(LINK_ID));
+        steps.shouldBePresent(LINK_ID);
     }
 
     @Test(expected = AssertionError.class)
@@ -701,7 +732,7 @@ public class WebStepsTest {
 
     @Test(expected = AssertionError.class)
     public final void shouldBeReadOnlyShouldFailIfElementIsNotReadOnly() {
-        steps.shouldBeReadOnly(new BddVariable(LINK_ID));
+        steps.shouldBeReadOnly(LINK_ID);
     }
 
     @Test
@@ -718,7 +749,7 @@ public class WebStepsTest {
 
     @Test(expected = AssertionError.class)
     public final void shouldBeEmptyShouldFailIfElementIsNotEmpty() {
-        steps.shouldBeEmpty(new BddVariable(LINK_ID));
+        steps.shouldBeEmpty(LINK_ID);
     }
 
     @Test
@@ -730,7 +761,7 @@ public class WebStepsTest {
 
     @Test
     public final void shouldBeEnabledShouldNotFailIfElementIsEnabled() {
-        steps.shouldBeEnabled(new BddVariable(LINK_ID));
+        steps.shouldBeEnabled(LINK_ID);
     }
 
     @Test(expected = AssertionError.class)
@@ -752,7 +783,7 @@ public class WebStepsTest {
 
     @Test(expected = AssertionError.class)
     public final void shouldBeDisabledShouldFailIfElementIsEnabled() {
-        steps.shouldBeDisabled(new BddVariable(LINK_ID));
+        steps.shouldBeDisabled(LINK_ID);
     }
 
     @Test
@@ -889,6 +920,14 @@ public class WebStepsTest {
     @Test
     public final void checkTitleContainsShouldNotFailWhenThereIsExactMatch() {
         steps.checkTitleContains(new BddVariable("Index"));
+    }
+
+    // afterStoriesWebSteps
+
+    @Test
+    public final void afterStoriesWebStepsShouldCloseWebDriver() {
+        steps.afterStoriesWebSteps();
+        assertThat(steps.getWebDriver(), is(nullValue()));
     }
 
 }

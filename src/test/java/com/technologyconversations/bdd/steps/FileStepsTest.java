@@ -3,10 +3,7 @@ package com.technologyconversations.bdd.steps;
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.apache.commons.io.FileUtils;
-import org.jbehave.core.annotations.Alias;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
-import org.jbehave.core.annotations.When;
+import org.jbehave.core.annotations.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +47,8 @@ public class FileStepsTest {
 
     @Test
     public final void setTimeoutSecondsShouldHaveGivenAnnotation() throws NoSuchMethodException {
-        Object actual = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class).getAnnotation(Given.class);
+        Method method = FileSteps.class.getMethod("setTimeoutSeconds", BddVariable.class);
+        Object actual = method.getAnnotation(Given.class);
         assertThat(actual, is(not(nullValue())));
     }
 
@@ -66,6 +64,13 @@ public class FileStepsTest {
         long timeoutMilliseconds = timeout * FileSteps.MILLISECONDS_IN_SECOND;
         steps.setTimeoutSeconds(new BddVariable(Integer.toString(timeout)));
         assertThat(steps.getTimeout(), is(timeoutMilliseconds));
+    }
+
+    @Test
+    public final void setTimeoutSecondsShouldNotThrowExceptionWhenArgumentIsNotNumber() {
+        long expected = steps.getTimeout();
+        steps.setTimeoutSeconds(new BddVariable("NotNumber"));
+        assertThat(steps.getTimeout(), is(expected));
     }
 
     // getTimeout
@@ -291,6 +296,21 @@ public class FileStepsTest {
     public final void fileDoesNotExistShouldNotThrowExceptionIfFileDoesNotExist()
             throws IOException, InterruptedException {
         steps.fileDoesNotExist(newFilePath);
+    }
+
+    // createBddVariable
+
+    @Test
+    public final void createBddVariableShouldHaveAsParameterConverterAnnotation() throws NoSuchMethodException {
+        Method method = FileSteps.class.getMethod("createBddVariable", String.class);
+        Object actual = method.getAnnotation(AsParameterConverter.class);
+        assertThat(actual, is(not(nullValue())));
+    }
+
+    @Test
+    public final void createBddVariableShouldReturnBddVariable() {
+        BddVariable actual = steps.createBddVariable("myVariable");
+        assertThat(actual.toString(), is("myVariable"));
     }
 
 }
