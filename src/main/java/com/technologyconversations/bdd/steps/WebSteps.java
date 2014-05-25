@@ -26,6 +26,9 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class WebSteps {
 
+    protected static final int MILLISECONDS_IN_SECOND = 1000;
+    protected static final int SLEEP_AFTER_CLICK = 100;
+
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
     // TODO Add uploadFromClasspath
@@ -33,27 +36,27 @@ public class WebSteps {
     // TODO Add focused
     // TODO Add selected
 
-    public Logger getLogger() {
+    public final Logger getLogger() {
         return Logger.getLogger(this.getClass().getName());
     }
 
-    private final String selectorsInfo = "\nAny CSS selector can be used to locate the element. " +
-            "Most commonly used selectors are:\n" +
-            ".myClass: Matches any element with class equal to 'myClass'\n" +
-            "#myId: Matches any element with ID equal to 'myId'\n" +
-            "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.\n" +
-            "Additional selectors are:\n" +
-            "text:my text: Matches any element with text equal to 'my text'";
-    private final String valueToVariableInfo = "\nValue will be saved as variable. " +
-            "It can be retrieved using selector as the key.";
-    private final String caseInsensitive = "\nVerification is NOT case sensitive.";
+    private static final String SELECTORS_INFO = "\nAny CSS selector can be used to locate the element. "
+            + "Most commonly used selectors are:\n"
+            + ".myClass: Matches any element with class equal to 'myClass'\n"
+            + "#myId: Matches any element with ID equal to 'myId'\n"
+            + "For more information on CSS selectors please consult http://www.w3.org/TR/CSS21/selector.html.\n"
+            + "Additional selectors are:\n"
+            + "text:my text: Matches any element with text equal to 'my text'";
+    private static final String VALUE_TO_VARIABLE_INFO = "\nValue will be saved as variable. "
+            + "It can be retrieved using selector as the key.";
+    private static final String CASE_INSENSITIVE = "\nVerification is NOT case sensitive.";
 
     private Map<String, String> params;
     @BddParamsBean()
-    public void setParams(Map<String, String> value) {
+    public final void setParams(final Map<String, String> value) {
         params = value;
     }
-    public Map<String, String> getParams() {
+    public final Map<String, String> getParams() {
         if (params == null) {
             params = new HashMap<>();
         }
@@ -61,7 +64,7 @@ public class WebSteps {
     }
 
     private String baseUrl;
-    public String getBaseUrl() {
+    public final String getBaseUrl() {
         if (baseUrl == null) {
             if (getParams().containsKey("url")) {
                 baseUrl = getParams().get("url");
@@ -79,6 +82,7 @@ public class WebSteps {
     TODO Test
     */
     private WebDriver webDriver;
+
     public void setWebDriver(BddVariable driver) {
         if (driver == null || driver.toString().isEmpty()) {
             webDriver = null;
@@ -111,6 +115,7 @@ public class WebSteps {
             setSize();
         }
     }
+
     @BddParam(value = "browser", description = "Supported drivers are: firefox (default), " +
             "chrome (the fastest, recommended), htmlunit (headless browser), ie, " +
             "opera (slow and unstable, not recommended), phantomjs (headless browser)."
@@ -129,16 +134,16 @@ public class WebSteps {
             setWebDriver(new BddVariable(browser));
         }
     }
-    protected WebDriver getWebDriver() {
+    protected final WebDriver getWebDriver() {
         return webDriver;
     }
 
     // Given
 
-    boolean urlHasBeenOpened = false;
+    private boolean urlHasBeenOpened = false;
     @BddDescription("Opens specified address.")
     @Given("Web address $url is opened")
-    public void open(BddVariable url) {
+    public final void open(final BddVariable url) {
         setWebDriver();
         String urlString = url.toString();
         if (!urlString.toLowerCase().startsWith("http")) {
@@ -151,32 +156,37 @@ public class WebSteps {
     @BddDescription("Opens address specified by webUrl parameter.")
     @BddParam(value = "url", description = "Web address used with the 'Given Web home page is opened' step.")
     @Given("Web home page is opened")
-    public void open() {
+    public final void open() {
         assertThat(getParams(), hasKey("url"));
         setWebDriver();
         Selenide.open(getParams().get("url"));
         urlHasBeenOpened = true;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(
+            value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+            justification = "The only way to set the timeout is to assign new value to the static variable")
     @BddDescription("Sets timeout used when operating with elements. Default value is 4 seconds.")
-    @BddParam(value = "timeout", description = "Sets timeout used when operating with elements. Default value is 4 seconds.")
+    @BddParam(value = "timeout", description = "Sets timeout used when operating with elements."
+            + " Default value is 4 seconds.")
     @Given("Web timeout is $seconds seconds")
-    public void setConfigTimeout(BddVariable seconds) {
+    public final void setConfigTimeout(final BddVariable seconds) {
         try {
-            Configuration.timeout = Integer.parseInt(seconds.toString()) * 1000;
+            Configuration.timeout = Integer.parseInt(seconds.toString()) * MILLISECONDS_IN_SECOND;
         } catch (NumberFormatException e) {
             getLogger().info("Could not parse " + seconds + " as integer");
         }
     }
-    protected int getConfigTimeout() {
-        Long value = Configuration.timeout / 1000;
+    protected final int getConfigTimeout() {
+        Long value = Configuration.timeout / MILLISECONDS_IN_SECOND;
         return value.intValue();
     }
 
     @BddDescription("Sets browser window size")
-    @BddParam(value = "widthHeight", description = "Sets window width and height. Values should be separated by comma (i.e. 1024, 768)")
+    @BddParam(value = "widthHeight", description = "Sets window width and height."
+            + " Values should be separated by comma (i.e. 1024, 768)")
     @Given("Web window size is $width width and $height height")
-    public void setSize(BddVariable width, BddVariable height) {
+    public final void setSize(final BddVariable width, final BddVariable height) {
         try {
             int widthFormatted = Integer.parseInt(width.toString());
             int heightFormatted = Integer.parseInt(height.toString());
@@ -185,7 +195,7 @@ public class WebSteps {
             getLogger().info("Could not parse " + width + " or " + height + " as integer");
         }
     }
-    protected void setSize() {
+    protected final void setSize() {
         if (getParams().containsKey("widthHeight")) {
             String widthHeight = getParams().get("widthHeight");
             if (!widthHeight.isEmpty()) {
@@ -199,49 +209,55 @@ public class WebSteps {
     }
 
     @Given("Web page is refreshed")
-    public void refresh() {
+    public final void refresh() {
         Selenide.refresh();
     }
 
     // When
 
-    @BddDescription("Clicks the element." + selectorsInfo)
+    @BddDescription("Clicks the element." + SELECTORS_INFO)
     @When("Web user clicks the element $selector")
-    public void clickElement(BddVariable selector) {
+    public final void clickElement(final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
+        // TODO Figure out a better way
+        try {
+            Thread.sleep(SLEEP_AFTER_CLICK);
+        } catch (InterruptedException e) {
+            getLogger().fine(e.getMessage());
+        }
         element.click();
     }
 
-    @BddDescription("Clears the text field and sets the specified value." + selectorsInfo + valueToVariableInfo)
+    @BddDescription("Clears the text field and sets the specified value." + SELECTORS_INFO + VALUE_TO_VARIABLE_INFO)
     @When("Web user sets value $value to the element $selector")
-    public void setElementValue(BddVariable value, BddVariable selector) {
+    public final void setElementValue(final BddVariable value, final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
         element.setValue(value.toString());
         CommonSteps.addVariable(selector.toString(), value.toString());
     }
 
-    @BddDescription("Appends the specified value." + selectorsInfo + valueToVariableInfo)
+    @BddDescription("Appends the specified value." + SELECTORS_INFO + VALUE_TO_VARIABLE_INFO)
     @When("Web user appends value $value to the element $selector")
-    public void appendElementValue(BddVariable value, BddVariable selector) {
+    public final void appendElementValue(final BddVariable value, final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
         element.append(value.toString());
         CommonSteps.addVariable(selector.toString(), value.toString());
     }
 
-    @BddDescription("Presses enter key on a specified element" + selectorsInfo)
+    @BddDescription("Presses enter key on a specified element" + SELECTORS_INFO)
     @When("Web user presses the enter key in the element $selector")
-    public void pressEnter(BddVariable selector) {
+    public final void pressEnter(final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
         element.pressEnter();
     }
 
-    @BddDescription("Select an option from dropdown list" + selectorsInfo + valueToVariableInfo)
+    @BddDescription("Select an option from dropdown list" + SELECTORS_INFO + VALUE_TO_VARIABLE_INFO)
     @When("Web user selects $text from the dropdown list $selector")
-    public void selectOption(BddVariable text, BddVariable selector) {
+    public final void selectOption(final BddVariable text, final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
         element.selectOption(text.toString());
@@ -249,14 +265,14 @@ public class WebSteps {
     }
 
     @When("Web user clears the element $selector")
-    public void clearValue(BddVariable selector) {
+    public final void clearValue(final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
         element.clear();
     }
 
     @When("Web user drags the element $fromSelector to the $toSelector")
-    public void dragAndDrop(BddVariable fromSelector, BddVariable toSelector) {
+    public final void dragAndDrop(final BddVariable fromSelector, final BddVariable toSelector) {
         SelenideElement from = findElement(fromSelector);
         SelenideElement to = findElement(toSelector);
         Selenide.actions().dragAndDrop(from, to).perform();
@@ -264,81 +280,87 @@ public class WebSteps {
 
     // Then
 
-    @BddDescription("Verifies that the title of the current page is as expected.")
-    @Then("Web page title is $title")
-    public void checkTitle(BddVariable title) {
-        assertThat(title(), equalTo(title.toString()));
+    @BddDescription("Verifies that the title of the current page is the same as specified text.")
+    @Then("Web page title should have exact text $text")
+    public final void checkTitle(final BddVariable text) {
+        assertThat(title(), equalTo(text.toString()));
     }
 
-    @BddDescription("Verifies that the element text contains the specified text." +
-            caseInsensitive + selectorsInfo)
+    @BddDescription("Verifies that the title of the current page contains the specified text.")
+    @Then("Web page title should have text $text")
+    public final void checkTitleContains(final BddVariable text) {
+        assertThat(title(), containsString(text.toString()));
+    }
+
+    @BddDescription("Verifies that the element text contains the specified text."
+            + CASE_INSENSITIVE + SELECTORS_INFO)
     @Then("Web element $selector should have text $text")
-    public void shouldHaveText(BddVariable selector, BddVariable text) {
+    public final void shouldHaveText(final BddVariable selector, final BddVariable text) {
         findElement(selector).shouldHave(text(text.toString()));
     }
 
-    @BddDescription("Verifies that the element text does NOT contain the specified text." +
-            caseInsensitive + selectorsInfo)
+    @BddDescription("Verifies that the element text does NOT contain the specified text."
+            + CASE_INSENSITIVE + SELECTORS_INFO)
     @Then("Web element $selector should NOT have text $text")
-    public void shouldNotHaveText(BddVariable selector, BddVariable text) {
+    public final void shouldNotHaveText(final BddVariable selector, final BddVariable text) {
         findElement(selector).shouldNotHave(text(text.toString()));
     }
 
-    @BddDescription("Verifies that the element text matches the specified regular expression." +
-            " For example, 'Hello, .*, how are you!' uses '.*' to match any text." + selectorsInfo)
+    @BddDescription("Verifies that the element text matches the specified regular expression."
+            + " For example, 'Hello, .*, how are you!' uses '.*' to match any text." + SELECTORS_INFO)
     @Then("Web element $selector should have matching text $regEx")
-    public void shouldHaveMatchText(BddVariable selector, BddVariable regEx) {
+    public final void shouldHaveMatchText(final BddVariable selector, final BddVariable regEx) {
         findElement(selector).shouldHave(matchText(regEx.toString()));
     }
 
-    @BddDescription("Verifies that the element text does NOT match the specified regular expression." + selectorsInfo)
+    @BddDescription("Verifies that the element text does NOT match the specified regular expression." + SELECTORS_INFO)
     @Then("Web element $selector should NOT have matching text $regEx")
-    public void shouldNotHaveMatchText(BddVariable selector, BddVariable regEx) {
+    public final void shouldNotHaveMatchText(final BddVariable selector, final BddVariable regEx) {
         findElement(selector).shouldNotHave(matchText(regEx.toString()));
     }
 
-    @BddDescription("Verifies that the element text is exactly the same as the specified text." +
-            caseInsensitive + selectorsInfo)
+    @BddDescription("Verifies that the element text is exactly the same as the specified text."
+            + CASE_INSENSITIVE + SELECTORS_INFO)
     @Then("Web element $selector should have exact text $text")
-    public void shouldHaveExactText(BddVariable selector, BddVariable text) {
+    public final void shouldHaveExactText(final BddVariable selector, final BddVariable text) {
         findElement(selector).shouldHave(exactText(text.toString()));
     }
 
-    @BddDescription("Verifies that the element text is NOT exactly the same as the specified text." +
-            caseInsensitive + selectorsInfo)
+    @BddDescription("Verifies that the element text is NOT exactly the same as the specified text."
+            + CASE_INSENSITIVE + SELECTORS_INFO)
     @Then("Web element $selector should NOT have exact text $text")
-    public void shouldNotHaveExactText(BddVariable selector, BddVariable text) {
+    public final void shouldNotHaveExactText(final BddVariable selector, final BddVariable text) {
         findElement(selector).shouldNotHave(exactText(text.toString()));
     }
 
-    @BddDescription("Verifies that the element value is the same as specified." + selectorsInfo)
+    @BddDescription("Verifies that the element value is the same as specified." + SELECTORS_INFO)
     @Then("Web element $selector should have value $value")
-    public void shouldHaveValue(BddVariable selector, BddVariable value) {
+    public final void shouldHaveValue(final BddVariable selector, final BddVariable value) {
         findElement(selector).shouldHave(value(value.toString()));
     }
 
-    @BddDescription("Verifies that the element value is NOT the same as specified." + selectorsInfo)
+    @BddDescription("Verifies that the element value is NOT the same as specified." + SELECTORS_INFO)
     @Then("Web element $selector should NOT have value $value")
-    public void shouldNotHaveValue(BddVariable selector, BddVariable value) {
+    public final void shouldNotHaveValue(final BddVariable selector, final BddVariable value) {
         findElement(selector).shouldNotHave(value(value.toString()));
     }
 
     @BddDescription("Verifies that the text of the selected dropdown list element is the same as text")
     @Then("Web dropdown list $selector has $text selected")
-    public void shouldHaveSelectedOption(BddVariable selector, BddVariable text) {
+    public final void shouldHaveSelectedOption(final BddVariable selector, final BddVariable text) {
         findElement(selector).getSelectedOption().shouldHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the text of the selected dropdown list element is NOT the same as text")
     @Then("Web dropdown list $selector does NOT have $text selected")
-    public void shouldNotHaveSelectedOption(BddVariable selector, BddVariable text) {
+    public final void shouldNotHaveSelectedOption(final BddVariable selector, final BddVariable text) {
         findElement(selector).getSelectedOption().shouldNotHave(text(text.toString()));
     }
 
     @BddDescription("Verifies that the element is visible (appears) and present (exists)")
     @Then("Web element $selector is visible")
     @Alias("Web element $selector appears")
-    public void shouldBeVisible(BddVariable selector) {
+    public final void shouldBeVisible(final BddVariable selector) {
         findElement(selector).shouldBe(visible);
     }
 
@@ -348,44 +370,44 @@ public class WebSteps {
             "Web element $selector disappeared",
             "Web element $selector is NOT visible"
     })
-    public void shouldBeHidden(BddVariable selector) {
+    public final void shouldBeHidden(final BddVariable selector) {
         findElement(selector).shouldBe(hidden);
     }
 
     @BddDescription("Verifies that the element is present (exists)")
     @Then("Web element $selector is present")
     @Alias("Web element $selector exists")
-    public void shouldBePresent(BddVariable selector) {
+    public final void shouldBePresent(final BddVariable selector) {
         findElement(selector).shouldBe(present);
     }
 
     @BddDescription("Verifies that the element is read-only")
     @Then("Web element $selector is read-only")
-    public void shouldBeReadOnly(BddVariable selector) {
+    public final void shouldBeReadOnly(final BddVariable selector) {
         findElement(selector).shouldBe(readonly);
     }
 
     @BddDescription("Verifies that the element text (or value in case of input) is empty.")
     @Then("Web element $selector is empty")
-    public void shouldBeEmpty(BddVariable selector) {
+    public final void shouldBeEmpty(final BddVariable selector) {
         findElement(selector).shouldBe(empty);
     }
 
     @BddDescription("Verifies that the element is enabled")
     @Then("Web element $selector is enabled")
-    public void shouldBeEnabled(BddVariable selector) {
+    public final void shouldBeEnabled(final BddVariable selector) {
         findElement(selector).shouldBe(enabled);
     }
 
     @BddDescription("Verifies that the element is disabled")
     @Then("Web element $selector is disabled")
-    public void shouldBeDisabled(BddVariable selector) {
+    public final void shouldBeDisabled(final BddVariable selector) {
         findElement(selector).shouldBe(disabled);
     }
 
     // Common methods
 
-    public SelenideElement findElement(BddVariable selector) {
+    public final SelenideElement findElement(final BddVariable selector) {
         openIfNotAlreadyOpened();
         String formattedSelector = selector.toString();
         String byTextPrefix = "text:";
@@ -407,29 +429,22 @@ public class WebSteps {
         }
     }
 
-    @BeforeStories
-    public void beforeStoriesWebSteps() {
+    @BeforeScenario
+    public final void beforeScenarioWebSteps() {
         if (getParams().containsKey("timeout")) {
             String timeout = getParams().get("timeout");
-            try {
-                setConfigTimeout(new BddVariable(timeout));
-            } catch (NumberFormatException e) {
-                getLogger().info("Could not parse " + timeout + " as integer");
-            }
+            setConfigTimeout(new BddVariable(timeout));
         }
     }
 
     @AfterStories
-    public void afterStoriesWebSteps() {
+    public final void afterStoriesWebSteps() {
         WebDriverRunner.closeWebDriver();
-        if (getWebDriver() != null) {
-            getWebDriver().close();
-            getWebDriver().quit();
-        }
+        webDriver = null;
     }
 
     @AsParameterConverter
-    public BddVariable createBddVariable(String value){
+    public final BddVariable createBddVariable(final String value) {
         return new BddVariable(value);
     }
 

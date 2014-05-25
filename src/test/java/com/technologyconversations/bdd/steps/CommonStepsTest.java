@@ -14,28 +14,28 @@ import java.util.TreeMap;
 public class CommonStepsTest {
 
     private CommonSteps steps;
-    private final String VARIABLE_KEY = "myVariable";
-    private final String VARIABLE_VALUE = "my variable value";
+    private static final String VARIABLE_KEY = "myVariable";
+    private static final String VARIABLE_VALUE = "my variable value";
 
     @Before
-    public void beforeCommonStepsTest() {
+    public final void beforeCommonStepsTest() {
         steps = new CommonSteps();
         CommonSteps.setVariableMap(null);
         CommonSteps.addVariable(VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Test
-    public void variableMapShouldHaveSetterAndGetter() {
+    public final void variableMapShouldHaveSetterAndGetter() {
         TreeMap<String, String> map = new TreeMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
         CommonSteps.setVariableMap(map);
-        assertThat(CommonSteps.getVariableMap().size(), is(2));
+        assertThat(CommonSteps.getVariableMap().size(), is(map.size()));
         assertThat(CommonSteps.getVariableMap(), hasKey("key1"));
     }
 
     @Test
-    public void addVariableShouldAddVariableToTheMap() {
+    public final void addVariableShouldAddVariableToTheMap() {
         String key = "myKey";
         String value = "my value";
         CommonSteps.addVariable(key, value);
@@ -43,19 +43,19 @@ public class CommonStepsTest {
     }
 
     @Test
-    public void addVariableShouldReturnNullIfTheKeyDoesNotExist() {
+    public final void addVariableShouldReturnNullIfTheKeyDoesNotExist() {
         assertThat(CommonSteps.getVariable("myKey"), is(nullValue()));
     }
 
     @Test
-    public void replaceTextWithVariableValuesShouldReturnUnchangedTextWhenThereIsNoMatch() {
+    public final void replaceTextWithVariableValuesShouldReturnUnchangedTextWhenThereIsNoMatch() {
         String text = "Lorem ipsum dolor sit amet";
         String actual = CommonSteps.replaceTextWithVariableValues(text);
         assertThat(actual, is(equalTo(text)));
     }
 
     @Test
-    public void replaceTextWithVariableValuesShouldReturnReplacedTextWhenThereIsExactMatch() {
+    public final void replaceTextWithVariableValuesShouldReturnReplacedTextWhenThereIsExactMatch() {
         String key = "myKey";
         String value = "my value";
         String text = "@myKey";
@@ -65,7 +65,7 @@ public class CommonStepsTest {
     }
 
     @Test
-    public void replaceTextWithVariableValuesShouldReturnReplacedTextWhenThereIsPartialMatch() {
+    public final void replaceTextWithVariableValuesShouldReturnReplacedTextWhenThereIsPartialMatch() {
         String key = "myKey";
         String anotherKey = "anotherKey";
         String value = "my value";
@@ -78,7 +78,7 @@ public class CommonStepsTest {
     }
 
     @Test
-    public void replaceTextWithVariableValuesShouldReturnReplacedTextRespectingNumbers() {
+    public final void replaceTextWithVariableValuesShouldReturnReplacedTextRespectingNumbers() {
         String key1 = "myKey1";
         String key11 = "myKey11";
         String value1 = "one";
@@ -91,7 +91,7 @@ public class CommonStepsTest {
     }
 
     @Test
-    public void replaceTextWithVariableValuesShouldReturnNullIfTextIsNull() {
+    public final void replaceTextWithVariableValuesShouldReturnNullIfTextIsNull() {
         String actual = CommonSteps.replaceTextWithVariableValues(null);
         assertThat(actual, is(nullValue()));
     }
@@ -99,24 +99,25 @@ public class CommonStepsTest {
     // checkVariable
 
     @Test
-    public void checkVariableShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
+    public final void checkVariableShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         Method method = CommonSteps.class.getMethod("checkVariable", String.class, String.class);
         assertThat(method, is(notNullValue()));
     }
 
     @Test
-    public void checkVariableShouldHaveThenAnnotation() throws NoSuchMethodException {
-        Annotation annotation = CommonSteps.class.getMethod("checkVariable", String.class, String.class).getAnnotation(Then.class);
+    public final void checkVariableShouldHaveThenAnnotation() throws NoSuchMethodException {
+        Method method = CommonSteps.class.getMethod("checkVariable", String.class, String.class);
+        Annotation annotation = method.getAnnotation(Then.class);
         assertThat(annotation, is(notNullValue()));
     }
 
     @Test
-    public void checkVariableShouldNotFailWhenVariableHasTheSameValueAsSpecified() {
+    public final void checkVariableShouldNotFailWhenVariableHasTheSameValueAsSpecified() {
         steps.checkVariable(VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Test(expected = AssertionError.class)
-    public void checkVariableShouldFailWhenVariableHasDifferentValueThanSpecified() {
+    public final void checkVariableShouldFailWhenVariableHasDifferentValueThanSpecified() {
         steps.checkVariable(VARIABLE_KEY, "my different value");
     }
 

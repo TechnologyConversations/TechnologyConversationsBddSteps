@@ -11,32 +11,32 @@ import java.util.TreeMap;
 
 public class CommonSteps {
 
-    public static final ThreadLocal<TreeMap<String, String>> variableMap = new ThreadLocal<>();
+    public static final ThreadLocal<TreeMap<String, String>> VARIABLE_MAP = new ThreadLocal<>();
 
     protected static TreeMap<String, String> getVariableMap() {
-        if (variableMap.get() == null) {
-            variableMap.set(new TreeMap<String, String>());
+        if (VARIABLE_MAP.get() == null) {
+            VARIABLE_MAP.set(new TreeMap<String, String>());
         }
-        return variableMap.get();
+        return VARIABLE_MAP.get();
     }
     protected static void setVariableMap(final TreeMap<String, String> value) {
-        variableMap.set(value);
+        VARIABLE_MAP.set(value);
     }
-    @BddDescription("Adds variable with the specified key. " +
-            "Variables can be referenced using @KEY format. " +
-            "For example, if variable username has value my_user, " +
-            "text 'Then Web element username should have text @username' would be transformed to: " +
-            "'Then Web element username should have text my_user'.")
+    @BddDescription("Adds variable with the specified key. "
+            + "Variables can be referenced using @KEY format. "
+            + "For example, if variable username has value my_user, "
+            + "text 'Then Web element username should have text @username' would be transformed to: "
+            + "'Then Web element username should have text my_user'.")
     @Given("variable $key has value $value")
-    public static void addVariable(String key, String value) {
+    public static void addVariable(final String key, final String value) {
         getVariableMap().put(key, value);
     }
-    public static String getVariable(String key) {
+    public static String getVariable(final String key) {
         return getVariableMap().get(key);
     }
 
     @Then("variable $key has value $value")
-    public void checkVariable(String key, String value) {
+    public final void checkVariable(final String key, final String value) {
         assertThat(getVariable(key), is(equalTo(value)));
     }
 
@@ -55,13 +55,13 @@ public class CommonSteps {
     }
 
     @AsParameterConverter
-    public BddVariable createBddVariable(String value){
+    public final BddVariable createBddVariable(final String value) {
         return new BddVariable(value);
     }
 
     @AfterStories
-    public void afterStoriesCommonSteps() {
-        variableMap.remove();
+    public final void afterStoriesCommonSteps() {
+        VARIABLE_MAP.remove();
     }
 
 }
