@@ -11,6 +11,6 @@ public @interface BddOptionParam {
 
     String text();
     String value();
-    boolean isSelected();
+    boolean isSelected() default false;
 
 }

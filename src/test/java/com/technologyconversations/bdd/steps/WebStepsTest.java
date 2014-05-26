@@ -82,7 +82,7 @@ public class WebStepsTest {
     }
 
     @Test
-    public void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws NoSuchMethodException {
+    public final void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws NoSuchMethodException {
         steps.setWebDriver(null);
         steps.setWebDriver();
         assertThat(steps.getWebDriver(), is(instanceOf(FirefoxDriver.class)));

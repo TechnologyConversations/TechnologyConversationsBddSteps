@@ -83,7 +83,7 @@ public class WebSteps {
     */
     private WebDriver webDriver;
 
-    public void setWebDriver(BddVariable driver) {
+    public final void setWebDriver(final BddVariable driver) {
         if (driver == null || driver.toString().isEmpty()) {
             webDriver = null;
         } else {
@@ -116,16 +116,16 @@ public class WebSteps {
         }
     }
 
-    @BddParam(value = "browser", description = "Supported drivers are: firefox (default), " +
-            "chrome (the fastest, recommended), htmlunit (headless browser), ie, " +
-            "opera (slow and unstable, not recommended), phantomjs (headless browser)."
-            , options = {@BddOptionParam(text="Mozilla Firefox", value="firefox", isSelected = true),
-                         @BddOptionParam(text="Google Chrome", value="chrome", isSelected = false),
-                         @BddOptionParam(text="HTML Unit", value="htmlunit", isSelected = false),
-                         @BddOptionParam(text="Internet Explorer", value="ie", isSelected = false),
-                         @BddOptionParam(text="Opera", value="opera", isSelected = false),
-                         @BddOptionParam(text="Phantom JS", value="phantomjs", isSelected = false)})
-    public void setWebDriver() {
+    @BddParam(value = "browser", description = "Supported drivers are: firefox (default), "
+            + "chrome (the fastest, recommended), htmlunit (headless browser), ie, "
+            + "opera (slow and unstable, not recommended), phantomjs (headless browser)."
+            , options = {@BddOptionParam(text = "Mozilla Firefox", value = "firefox", isSelected = true),
+                         @BddOptionParam(text = "Google Chrome", value = "chrome"),
+                         @BddOptionParam(text = "HTML Unit", value = "htmlunit"),
+                         @BddOptionParam(text = "Internet Explorer", value = "ie"),
+                         @BddOptionParam(text = "Opera", value = "opera"),
+                         @BddOptionParam(text = "Phantom JS", value = "phantomjs") })
+    public final void setWebDriver() {
         if (getWebDriver() == null) {
             String browser = "firefox";
             if (getParams().containsKey("browser")) {

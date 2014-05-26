@@ -11,6 +11,6 @@ public @interface BddParam {
 
     String value();
     String description();
-    BddOptionParam[] options() default {};
+    BddOptionParam[] options() default { };
 
 }
