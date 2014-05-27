@@ -23,7 +23,9 @@ dependencies {
     compile 'net.sourceforge.findbugs:annotations:1.3.2'
     testCompile 'junit:junit:4.11'
     testCompile 'org.hamcrest:hamcrest-all:1.3'
-    testCompile 'org.mockito:mockito-all:1.8.4'
+    testCompile 'org.mockito:mockito-all:1.9.5'
+	testCompile 'org.powermock:powermock-mockito-release-full:1.5.4'
+//    testRuntime 'org.javassist:javassist:3.18.1-GA'
 }
 
 tasks.withType(FindBugs) {
