@@ -20,6 +20,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.junit.runner.RunWith;
@@ -40,7 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(FirefoxDriver.class)
+@PrepareForTest({FirefoxDriver.class, WebSteps.class})
+@PowerMockIgnore("javax.net.ssl.*")
 public class WebStepsTest {
 
     // TODO Test with all browsers
