@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FirefoxDriver.class, WebSteps.class})
+@PrepareForTest({FirefoxDriver.class, WebSteps.class })
 @PowerMockIgnore("javax.net.ssl.*")
 public class WebStepsTest {
 
