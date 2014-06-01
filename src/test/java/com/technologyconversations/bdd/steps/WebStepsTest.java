@@ -24,14 +24,11 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 
 import static org.mockito.Mockito.times;
-import static org.powermock.api.mockito.PowerMockito.*;
 
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
-import static org.mockito.Matchers.any;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
