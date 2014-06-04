@@ -15,9 +15,20 @@ import org.jbehave.core.annotations.When;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.runner.RunWith;
+
+import static org.mockito.Mockito.times;
+
+import static org.powermock.api.mockito.PowerMockito.verifyNew;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -26,6 +37,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({FirefoxDriver.class, WebSteps.class })
+@PowerMockIgnore("javax.net.ssl.*")
 public class WebStepsTest {
 
     // TODO Test with all browsers
@@ -79,6 +93,17 @@ public class WebStepsTest {
         BddParam bddParam = WebSteps.class.getMethod("setWebDriver").getAnnotation(BddParam.class);
         assertThat(bddParam.value(), is("browser"));
     }
+
+    @Test
+    public final void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws Exception {
+        FirefoxDriver mockFirefoxDriver = Mockito.mock(FirefoxDriver.class);
+        whenNew(FirefoxDriver.class).withNoArguments().thenReturn(mockFirefoxDriver);
+        steps.setWebDriver(null);
+        steps.setWebDriver();
+        verifyNew(FirefoxDriver.class, times(1)).withNoArguments();
+        assertThat(steps.getWebDriver(), is(instanceOf(FirefoxDriver.class)));
+    }
+
 
     @Test
     public final void setWebDriverShouldSetWebDriver() {

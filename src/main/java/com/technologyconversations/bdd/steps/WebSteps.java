@@ -6,10 +6,7 @@ import static org.hamcrest.Matchers.*;
 import com.codeborne.selenide.*;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.opera.core.systems.OperaDriver;
-import com.technologyconversations.bdd.steps.util.BddDescription;
-import com.technologyconversations.bdd.steps.util.BddParam;
-import com.technologyconversations.bdd.steps.util.BddParamsBean;
-import com.technologyconversations.bdd.steps.util.BddVariable;
+import com.technologyconversations.bdd.steps.util.*;
 import org.jbehave.core.annotations.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -85,8 +82,9 @@ public class WebSteps {
     TODO Test
     */
     private WebDriver webDriver;
+
     public final void setWebDriver(final BddVariable driver) {
-        if (driver == null) {
+        if (driver == null || driver.toString().isEmpty()) {
             webDriver = null;
         } else {
             switch (driver.toString().toLowerCase()) {
@@ -117,9 +115,16 @@ public class WebSteps {
             setSize();
         }
     }
+
     @BddParam(value = "browser", description = "Supported drivers are: firefox (default), "
             + "chrome (the fastest, recommended), htmlunit (headless browser), ie, "
-            + "opera (slow and unstable, not recommended), phantomjs (headless browser).")
+            + "opera (slow and unstable, not recommended), phantomjs (headless browser)."
+            , options = {@BddOptionParam(text = "Mozilla Firefox", value = "firefox", isSelected = true),
+                         @BddOptionParam(text = "Google Chrome", value = "chrome"),
+                         @BddOptionParam(text = "HTML Unit", value = "htmlunit"),
+                         @BddOptionParam(text = "Internet Explorer", value = "ie"),
+                         @BddOptionParam(text = "Opera", value = "opera"),
+                         @BddOptionParam(text = "Phantom JS", value = "phantomjs") })
     public final void setWebDriver() {
         if (getWebDriver() == null) {
             String browser = "firefox";

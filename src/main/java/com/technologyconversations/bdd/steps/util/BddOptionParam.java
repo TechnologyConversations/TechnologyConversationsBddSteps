@@ -7,10 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface BddParam {
+public @interface BddOptionParam {
 
+    String text();
     String value();
-    String description();
-    BddOptionParam[] options() default { };
+    boolean isSelected() default false;
 
 }
