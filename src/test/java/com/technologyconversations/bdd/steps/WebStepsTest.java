@@ -23,8 +23,8 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.junit.runner.RunWith;
+//import org.powermock.modules.junit4.PowerMockRunner;
+//import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.times;
 
