@@ -3,6 +3,7 @@ package com.technologyconversations.bdd.steps;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
+import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.jbehave.core.annotations.Then;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,5 +121,30 @@ public class CommonStepsTest {
     public final void checkVariableShouldFailWhenVariableHasDifferentValueThanSpecified() {
         steps.checkVariable(VARIABLE_KEY, "my different value");
     }
+
+    // afterStoriesCommonSteps
+
+    @Test
+    public final void afterStoriesCommonStepsShouldRemoveAllVariables() {
+        assertThat(CommonSteps.getVariableMap().values(), is(not(empty())));
+        steps.afterStoriesCommonSteps();
+        assertThat(CommonSteps.getVariableMap().values(), is(empty()));
+    }
+
+    // createBddVariable
+
+    @Test
+    public final void createBddVariableShouldReturnBddVariable() {
+        Object variable = steps.createBddVariable("myValue");
+        assertThat(variable, is(instanceOf(BddVariable.class)));
+    }
+
+    @Test
+    public final void createBddVariableShouldAssignValue() {
+        String expected = "myValue";
+        BddVariable variable = steps.createBddVariable(expected);
+        assertThat(variable.toString(), is(equalTo(expected)));
+    }
+
 
 }
