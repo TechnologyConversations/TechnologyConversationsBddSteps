@@ -96,7 +96,8 @@ public class WebStepsTest {
     }
 
     @Test
-    @Ignore("PowerMock RunWith in the class declaration does not play well with JaCoCo. More info can be found in https://github.com/jacoco/eclemma/issues/15 .")
+    @Ignore("PowerMock RunWith in the class declaration does not play well with JaCoCo. " +
+            "More info can be found in https://github.com/jacoco/eclemma/issues/15 .")
     public final void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws Exception {
         FirefoxDriver mockFirefoxDriver = Mockito.mock(FirefoxDriver.class);
         whenNew(FirefoxDriver.class).withNoArguments().thenReturn(mockFirefoxDriver);
