@@ -23,13 +23,10 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-//import org.powermock.modules.junit4.PowerMockRunner;
-//import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.times;
 
-import static org.powermock.api.mockito.PowerMockito.verifyNew;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -61,6 +58,7 @@ public class WebStepsTest {
     private final BddVariable value = new BddVariable("random value");
     private static final int BROWSER_WIDTH = 789;
     private static final int BROWSER_HEIGHT = 678;
+    private static final String HOME_PAGE = "http://technologyconversations.com";
 
     @BeforeClass
     public static void beforeClass() {
@@ -80,9 +78,10 @@ public class WebStepsTest {
         if (!(steps.getWebDriver() instanceof HtmlUnitDriver)) {
             steps.setWebDriver(new BddVariable("htmlunit"));
         }
+        steps.setBaseUrl(null);
+        steps.setParams(null);
         steps.setConfigTimeout(new BddVariable("0"));
         steps.open(new BddVariable(indexUrl));
-        steps.setParams(null);
         steps.setSize(new BddVariable("100"), new BddVariable("100"));
         CommonSteps.setVariableMap(null);
     }
@@ -323,7 +322,6 @@ public class WebStepsTest {
     public final void openShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
         assertThat(WebSteps.class.getMethod("open", BddVariable.class), is(notNullValue()));
     }
-
 
     // clickElement
 
@@ -956,6 +954,27 @@ public class WebStepsTest {
     public final void afterStoriesWebStepsShouldCloseWebDriver() {
         steps.afterStoriesWebSteps();
         assertThat(steps.getWebDriver(), is(nullValue()));
+    }
+
+    // getUrl
+
+    @Test
+    public final void getUrlShouldReturnUrlWhenItStartsWithHttp() {
+        assertThat(steps.getUrl(HOME_PAGE), is(HOME_PAGE));
+    }
+
+    @Test
+    public final void getUrlShouldBePrefixedWithBaseUrlWhenItDoesNotStartWithHttp() {
+        String url = "/some/page";
+        steps.getParams().put("url", HOME_PAGE);
+        assertThat(steps.getUrl(url), is(HOME_PAGE + url));
+    }
+
+    @Test
+    public final void getUrlShouldRemoveDuplicatedSlash() {
+        String url = "/some/page";
+        steps.getParams().put("url", HOME_PAGE + "/");
+        assertThat(steps.getUrl(url), is(HOME_PAGE + url));
     }
 
 }

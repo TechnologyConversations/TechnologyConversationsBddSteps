@@ -65,7 +65,7 @@ public class WebSteps {
 
     private String baseUrl;
     public final String getBaseUrl() {
-        if (baseUrl == null) {
+        if (baseUrl == null || baseUrl.isEmpty()) {
             if (getParams().containsKey("url")) {
                 baseUrl = getParams().get("url");
             } else {
@@ -73,6 +73,9 @@ public class WebSteps {
             }
         }
         return baseUrl;
+    }
+    protected final void setBaseUrl(final String value) {
+        this.baseUrl = value;
     }
 
     /*
@@ -145,10 +148,7 @@ public class WebSteps {
     @Given("Web address $url is opened")
     public final void open(final BddVariable url) {
         setWebDriver();
-        String urlString = url.toString();
-        if (!urlString.toLowerCase().startsWith("http")) {
-            urlString = getBaseUrl() + urlString;
-        }
+        String urlString = this.getUrl(url.toString());
         Selenide.open(urlString);
         urlHasBeenOpened = true;
     }
@@ -427,6 +427,17 @@ public class WebSteps {
         if (!urlHasBeenOpened) {
             open();
         }
+    }
+
+    protected final String getUrl(final String url) {
+        String newUrl = url;
+        if (!newUrl.toLowerCase().startsWith("http")) {
+            if (this.getBaseUrl().endsWith("/") && newUrl.startsWith("/")) {
+                newUrl = newUrl.substring(1);
+            }
+            newUrl = this.getBaseUrl() + newUrl;
+        }
+        return newUrl;
     }
 
     @BeforeScenario
