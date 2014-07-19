@@ -32,7 +32,6 @@ public class WebSteps {
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
     // TODO Add uploadFromClasspath
-    // TODO Add options
     // TODO Add focused
     // TODO Add selected
 
@@ -450,8 +449,15 @@ public class WebSteps {
 
     @AfterStories
     public final void afterStoriesWebSteps() {
+        System.out.println("afterStoriesWebSteps");
         WebDriverRunner.closeWebDriver();
-        webDriver = null;
+        if (webDriver != null) {
+            try {
+                webDriver.quit();
+            } finally {
+                webDriver = null;
+            }
+        }
     }
 
     @AsParameterConverter
