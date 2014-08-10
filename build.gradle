@@ -5,7 +5,7 @@ apply plugin: 'pmd'
 apply plugin: 'jacoco'
 
 group = 'com.technologyconversations'
-version = '0.2'
+version = '1.0.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 

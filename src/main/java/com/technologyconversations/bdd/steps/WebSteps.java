@@ -515,38 +515,38 @@ public class WebSteps {
     }
 
     protected DesiredCapabilities getDesiredCapabilities() {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
+        DesiredCapabilities capabilities;
         String browser = getBrowserParam();
         switch (browser) {
             case "android":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.android());
+                capabilities = DesiredCapabilities.android();
                 break;
             case "chrome":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.chrome());
+                capabilities = DesiredCapabilities.chrome();
                 break;
             case "htmlunit":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.htmlUnit());
+                capabilities = DesiredCapabilities.htmlUnitWithJs();
                 break;
             case "ie":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.internetExplorer());
+                capabilities = DesiredCapabilities.internetExplorer();
                 break;
             case "ipad":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.ipad());
+                capabilities = DesiredCapabilities.ipad();
                 break;
             case "iphone":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.iphone());
+                capabilities = DesiredCapabilities.iphone();
                 break;
             case "opera":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.opera());
+                capabilities = DesiredCapabilities.opera();
                 break;
             case "phantomjs":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.phantomjs());
+                capabilities = DesiredCapabilities.phantomjs();
                 break;
             case "safari":
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.safari());
+                capabilities = DesiredCapabilities.safari();
                 break;
             default:
-                capabilities.setCapability(CapabilityType.BROWSER_NAME, DesiredCapabilities.firefox());
+                capabilities = DesiredCapabilities.firefox();
                 break;
         }
         String platform = this.getRemoteDriverPlatform();

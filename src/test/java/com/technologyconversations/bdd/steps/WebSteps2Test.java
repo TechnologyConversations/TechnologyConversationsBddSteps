@@ -6,6 +6,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -101,81 +103,71 @@ public class WebSteps2Test {
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserAndroid() {
         steps.getParams().put("browser", "android");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.android())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.ANDROID)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserChrome() {
         steps.getParams().put("browser", "chrome");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.chrome())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.CHROME)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserFirefox() {
         steps.getParams().put("browser", "firefox");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.firefox())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.FIREFOX)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserHtmlUnit() {
         steps.getParams().put("browser", "htmlunit");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.htmlUnit())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.HTMLUNIT)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserIe() {
         steps.getParams().put("browser", "ie");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.internetExplorer())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.IE)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserIPad() {
         steps.getParams().put("browser", "ipad");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.ipad())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.IPAD)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserIPhone() {
         steps.getParams().put("browser", "iphone");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.iphone())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.IPHONE)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserOpera() {
         steps.getParams().put("browser", "opera");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.opera())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.OPERA)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserPhantomJS() {
         steps.getParams().put("browser", "phantomjs");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.phantomjs())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.PHANTOMJS)));
     }
 
     @Test
     public void getDesiredCapabilitiesShouldSetBrowserSafari() {
         steps.getParams().put("browser", "safari");
-        DesiredCapabilities capability = (DesiredCapabilities) steps
-                .getDesiredCapabilities().getCapability(CapabilityType.BROWSER_NAME);
-        assertThat(capability, is(equalTo(DesiredCapabilities.safari())));
+        DesiredCapabilities capability = steps.getDesiredCapabilities();
+        assertThat(capability.getBrowserName(), is(equalTo(BrowserType.SAFARI)));
     }
 
     @Test
@@ -189,8 +181,8 @@ public class WebSteps2Test {
     @Test
     public void getDesiredCapabilitiesShouldNotSetPlatformWhenParameterDoesNotExist() {
         steps.getParams().clear();
-        Object actual = steps.getDesiredCapabilities().getCapability(CapabilityType.PLATFORM);
-        assertThat(actual, is(nullValue()));
+        Platform actual = (Platform) steps.getDesiredCapabilities().getCapability(CapabilityType.PLATFORM);
+        assertThat(actual, is(Platform.ANY));
     }
 
     @Test
@@ -204,8 +196,8 @@ public class WebSteps2Test {
     @Test
     public void getDesiredCapabilitiesShouldNotSetVersionWhenParameterDoesNotExist() {
         steps.getParams().clear();
-        Object actual = steps.getDesiredCapabilities().getCapability(CapabilityType.VERSION);
-        assertThat(actual, is(nullValue()));
+        String actual = (String) steps.getDesiredCapabilities().getCapability(CapabilityType.VERSION);
+        assertThat(actual, isEmptyString());
     }
 
     // beforeScenarioWebSteps
