@@ -15,4 +15,20 @@ public class BddVariable {
         return variableValue;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BddVariable that = (BddVariable) o;
+        return variableValue.equals(that.variableValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return variableValue.hashCode();
+    }
 }

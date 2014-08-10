@@ -2,31 +2,19 @@ package com.technologyconversations.bdd.steps;
 
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.ElementNotFound;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddParamsBean;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-
-import static org.mockito.Mockito.times;
-
-import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -35,9 +23,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-//@RunWith(PowerMockRunner.class)
-@PrepareForTest({FirefoxDriver.class, WebSteps.class })
-@PowerMockIgnore("javax.net.ssl.*")
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 public class WebStepsTest {
 
     // TODO Test with all browsers
@@ -58,7 +46,6 @@ public class WebStepsTest {
     private final BddVariable value = new BddVariable("random value");
     private static final int BROWSER_WIDTH = 789;
     private static final int BROWSER_HEIGHT = 678;
-    private static final String HOME_PAGE = "http://technologyconversations.com";
 
     @BeforeClass
     public static void beforeClass() {
@@ -86,59 +73,9 @@ public class WebStepsTest {
         CommonSteps.setVariableMap(null);
     }
 
-    // setWebDriver
-
-    @Test
-    public final void setWebDriverShouldHaveBddParamAnnotation() throws NoSuchMethodException {
-        BddParam bddParam = WebSteps.class.getMethod("setWebDriver").getAnnotation(BddParam.class);
-        assertThat(bddParam.value(), is("browser"));
-    }
-
-    @Test
-    @Ignore("PowerMock RunWith in the class declaration does not play well with JaCoCo. "
-            + "More info can be found in https://github.com/jacoco/eclemma/issues/15 .")
-    public final void setWebDriverShouldHaveFirefoxAsDefaultBrowser() throws Exception {
-        FirefoxDriver mockFirefoxDriver = Mockito.mock(FirefoxDriver.class);
-        whenNew(FirefoxDriver.class).withNoArguments().thenReturn(mockFirefoxDriver);
-        steps.setWebDriver(null);
-        steps.setWebDriver();
-        verifyNew(FirefoxDriver.class, times(1)).withNoArguments();
-        assertThat(steps.getWebDriver(), is(instanceOf(FirefoxDriver.class)));
-    }
-
-
-    @Test
-    public final void setWebDriverShouldSetWebDriver() {
-        steps.setWebDriver(new BddVariable("phantomjs"));
-        assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
-    }
-
-    @Test
-    public final void setWebDriverShouldSetWindowWidthAndHeight() {
-        String widthHeight = Integer.toString(dimension.getWidth()) + ", " + Integer.toString(dimension.getHeight());
-        steps.getParams().put("widthHeight", widthHeight);
-        steps.setWebDriver(new BddVariable("phantomjs"));
-        Dimension actual = steps.getWebDriver().manage().window().getSize();
-        assertThat(actual.getWidth(), is(equalTo(dimension.getWidth())));
-        assertThat(actual.getHeight(), is(equalTo(dimension.getHeight())));
-    }
-
-    @Test
-    public final void setWebDriverShouldNotSetWindowWidthAndHeightWhenWeigthHeightParamIsNotSet() {
-        steps.setWebDriver(new BddVariable("phantomjs"));
-        Dimension actual = steps.getWebDriver().manage().window().getSize();
-        assertThat(actual.getWidth(), is(not(equalTo(dimension.getWidth()))));
-        assertThat(actual.getHeight(), is(not(equalTo(dimension.getHeight()))));
-    }
-
-    @Test
-    public final void setWebDriverShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        assertThat(WebSteps.class.getMethod("setWebDriver", BddVariable.class), is(notNullValue()));
-    }
-
-    @Test
-    public final void setWebDriverShouldAcceptNullAsDriver() {
-        steps.setWebDriver(null);
+    @AfterClass
+    public static void afterWebStepsTestClass() {
+        steps.afterStoriesWebSteps();
     }
 
     // setParams
@@ -311,11 +248,14 @@ public class WebStepsTest {
     }
 
     @Test
-    public final void openShouldSetDriverToValueOfTheParamWebDriverWhenDriverIsNull() {
-        steps.setWebDriver(null);
-        steps.getParams().put("browser", "phantomjs");
-        steps.open(new BddVariable(indexUrl));
-        assertThat(steps.getWebDriver(), is(instanceOf(PhantomJSDriver.class)));
+    public final void openShouldInvokeSetWebDriver() {
+        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
+        Mockito.doCallRealMethod().when(mockedSteps).open(Mockito.any(BddVariable.class));
+        try {
+            mockedSteps.open(new BddVariable(indexUrl));
+        } catch (NullPointerException e) { // Invoked by Selenide.open.
+            Mockito.verify(mockedSteps).setWebDriver();
+        }
     }
 
     @Test
@@ -954,27 +894,6 @@ public class WebStepsTest {
     public final void afterStoriesWebStepsShouldCloseWebDriver() {
         steps.afterStoriesWebSteps();
         assertThat(steps.getWebDriver(), is(nullValue()));
-    }
-
-    // getUrl
-
-    @Test
-    public final void getUrlShouldReturnUrlWhenItStartsWithHttp() {
-        assertThat(steps.getUrl(HOME_PAGE), is(HOME_PAGE));
-    }
-
-    @Test
-    public final void getUrlShouldBePrefixedWithBaseUrlWhenItDoesNotStartWithHttp() {
-        String url = "/some/page";
-        steps.getParams().put("url", HOME_PAGE);
-        assertThat(steps.getUrl(url), is(HOME_PAGE + url));
-    }
-
-    @Test
-    public final void getUrlShouldRemoveDuplicatedSlash() {
-        String url = "/some/page";
-        steps.getParams().put("url", HOME_PAGE + "/");
-        assertThat(steps.getUrl(url), is(HOME_PAGE + url));
     }
 
 }
