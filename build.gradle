@@ -1,8 +1,18 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
+    }
+}
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 apply plugin: 'jacoco'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
 
 group = 'com.technologyconversations'
 version = '1.0.0'
@@ -34,3 +44,44 @@ tasks.withType(FindBugs) {
     }
 }
 
+bintray {
+    user = 'vfarcic'
+    key = '829b6769942939daa1333b5e523fdc55205cfdad'
+    dryRun = false
+    publish = true
+    configurations = ['published', 'archives']
+    pkg {
+        repo = 'technology-conversations'
+        name = 'bdd-steps'
+        desc = 'BDD steps that can be used with BDD Assistant or any other BDD framework based on JBehave.'
+        websiteUrl = 'http://bddassistant.com'
+        issueTrackerUrl = 'https://github.com/TechnologyConversations/TechnologyConversationsBddSteps/issues'
+        vcsUrl = 'https://github.com/TechnologyConversations/TechnologyConversationsBddSteps.git'
+        licenses = ['Apache-2.0']
+        labels = ['BDD', 'Testing', 'Development']
+        publicDownloadNumbers = false
+        version {
+            name = '1.0.0'
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            name = 'vfarcic-technology-conversations-bdd-steps'
+            repository(id: 'bintray-vfarcic-technology-conversations-bdd-steps', url: 'https://api.bintray.com/maven/vfarcic/technology-conversations/bdd-steps') {
+                authentication(userName: 'vfarcic', password: '829b6769942939daa1333b5e523fdc55205cfdad')
+            }
+        }
+    }
+}
