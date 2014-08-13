@@ -13,6 +13,7 @@ apply plugin: 'pmd'
 apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 group = 'com.technologyconversations'
 version = '1.0.0'
@@ -49,7 +50,6 @@ bintray {
     key = '829b6769942939daa1333b5e523fdc55205cfdad'
     dryRun = false
     publish = true
-    configurations = ['published', 'archives']
     pkg {
         repo = 'technology-conversations'
         name = 'bdd-steps'
@@ -66,12 +66,18 @@ bintray {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn:classes) {
+task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 artifacts {
+    archives javadocJar
     archives sourcesJar
 }
 
