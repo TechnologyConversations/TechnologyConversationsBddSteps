@@ -253,10 +253,10 @@ public class WebSteps2Test {
         assertThat(steps.getUrl(url), is(HOME_PAGE + "/" + url));
     }
 
-    // switchToWindow
+    // switchToFrame
 
     @Test
-    public void switchToWindowShouldSwitchToNewWindow() {
+    public void switchToWindowShouldSwitchToNewFrame() {
         BddVariable id = new BddVariable("myId");
         WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         WebDriver webDriver = Mockito.mock(WebDriver.class);
@@ -266,6 +266,20 @@ public class WebSteps2Test {
         Mockito.doReturn(locator).when(webDriver).switchTo();
         mockedSteps.switchToFrame(id);
         Mockito.verify(locator).frame(id.toString());
+    }
+
+    // switchToDefaultContent
+
+    @Test
+    public void switchToDefaultContentShouldSwitchToDefaultContent() {
+        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
+        WebDriver webDriver = Mockito.mock(WebDriver.class);
+        WebDriver.TargetLocator locator = Mockito.mock(WebDriver.TargetLocator.class);
+        Mockito.doCallRealMethod().when(mockedSteps).switchToDefaultContent();
+        Mockito.doReturn(webDriver).when(mockedSteps).getWebDriver();
+        Mockito.doReturn(locator).when(webDriver).switchTo();
+        mockedSteps.switchToDefaultContent();
+        Mockito.verify(locator).defaultContent();
     }
 
     // openIfNotAlreadyOpened

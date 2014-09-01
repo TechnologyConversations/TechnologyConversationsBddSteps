@@ -427,6 +427,12 @@ public class WebSteps {
         getWebDriver().switchTo().frame(id.toString());
     }
 
+    @BddDescription("Switches to the default content")
+    @When("Web switches to default content")
+    public void switchToDefaultContent() {
+        getWebDriver().switchTo().defaultContent();
+    }
+
     // Common methods
 
     public SelenideElement findElement(final BddVariable selector) {
