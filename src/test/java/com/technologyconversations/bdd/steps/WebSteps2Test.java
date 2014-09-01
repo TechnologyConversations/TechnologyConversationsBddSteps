@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.openqa.selenium.Platform;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -250,6 +251,21 @@ public class WebSteps2Test {
         String url = "some/page";
         steps.getParams().put("url", HOME_PAGE + "/");
         assertThat(steps.getUrl(url), is(HOME_PAGE + "/" + url));
+    }
+
+    // switchToWindow
+
+    @Test
+    public void switchToWindowShouldSwitchToNewWindow() {
+        BddVariable id = new BddVariable("myId");
+        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
+        WebDriver webDriver = Mockito.mock(WebDriver.class);
+        WebDriver.TargetLocator locator = Mockito.mock(WebDriver.TargetLocator.class);
+        Mockito.doCallRealMethod().when(mockedSteps).switchToFrame(id);
+        Mockito.doReturn(webDriver).when(mockedSteps).getWebDriver();
+        Mockito.doReturn(locator).when(webDriver).switchTo();
+        mockedSteps.switchToFrame(id);
+        Mockito.verify(locator).frame(id.toString());
     }
 
     // openIfNotAlreadyOpened

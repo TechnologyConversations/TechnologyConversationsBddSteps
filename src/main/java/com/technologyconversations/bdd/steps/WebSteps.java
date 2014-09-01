@@ -421,6 +421,12 @@ public class WebSteps {
         findElement(selector).shouldBe(disabled);
     }
 
+    @BddDescription("Switches to a separate window or iFrame")
+    @When("Web switches to frame $id")
+    public void switchToFrame(final BddVariable id) {
+        getWebDriver().switchTo().frame(id.toString());
+    }
+
     // Common methods
 
     public SelenideElement findElement(final BddVariable selector) {
