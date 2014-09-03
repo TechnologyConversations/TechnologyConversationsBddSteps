@@ -1,8 +1,10 @@
 package com.technologyconversations.bdd.steps;
 
+import com.codeborne.selenide.SelenideElement;
 import com.technologyconversations.bdd.steps.util.BddParam;
 import com.technologyconversations.bdd.steps.util.BddVariable;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,15 +22,24 @@ public class WebSteps2Test {
     private static WebSteps steps;
     private static final String HOME_PAGE = "http://technologyconversations.com";
     private BddVariable browserVariable = new BddVariable("phantomjs");
+    private WebSteps mockedSteps;
+    private WebDriver mockedWebDriver;
 
     @BeforeClass
-    public static void beforeWebStepsTest() {
+    public static void beforeWebStepsTestClass() {
         steps = new WebSteps();
     }
 
     @AfterClass
     public static void afterWebStepsTestClass() {
         steps.afterStoriesWebSteps();
+    }
+
+    @Before
+    public void beforeWebStepsTest() {
+        mockedWebDriver = Mockito.mock(WebDriver.class);
+        mockedSteps = Mockito.mock(WebSteps.class);
+        Mockito.doReturn(mockedWebDriver).when(mockedSteps).getWebDriver();
     }
 
     // getRemoteDriverUrl
@@ -207,22 +218,22 @@ public class WebSteps2Test {
     public void beforeScenarioWebStepsShouldCallSetConfigTimeoutWhenParameterExists() {
         String timeout = "123";
         BddVariable variable = new BddVariable(timeout);
-        WebSteps mockedSteps = Mockito.spy(new WebSteps());
-        Mockito.doNothing().when(mockedSteps).setConfigTimeout(Mockito.any(BddVariable.class));
-        mockedSteps.getParams().put("timeout", timeout);
-        mockedSteps.beforeScenarioWebSteps();
-        Mockito.verify(mockedSteps).setConfigTimeout(variable);
+        WebSteps spiedSteps = Mockito.spy(new WebSteps());
+        Mockito.doNothing().when(spiedSteps).setConfigTimeout(Mockito.any(BddVariable.class));
+        spiedSteps.getParams().put("timeout", timeout);
+        spiedSteps.beforeScenarioWebSteps();
+        Mockito.verify(spiedSteps).setConfigTimeout(variable);
     }
 
     @Test
     public void beforeScenarioWebStepsShouldNotCallSetConfigTimeoutWhenParameterDoesNotExist() {
         String timeout = "123";
         BddVariable variable = new BddVariable(timeout);
-        WebSteps mockedSteps = Mockito.spy(new WebSteps());
-        Mockito.doNothing().when(mockedSteps).setConfigTimeout(Mockito.any(BddVariable.class));
-        mockedSteps.getParams().clear();
-        mockedSteps.beforeScenarioWebSteps();
-        Mockito.verify(mockedSteps, Mockito.never()).setConfigTimeout(variable);
+        WebSteps spiedSteps = Mockito.spy(new WebSteps());
+        Mockito.doNothing().when(spiedSteps).setConfigTimeout(Mockito.any(BddVariable.class));
+        spiedSteps.getParams().clear();
+        spiedSteps.beforeScenarioWebSteps();
+        Mockito.verify(spiedSteps, Mockito.never()).setConfigTimeout(variable);
     }
 
     // getUrl
@@ -256,28 +267,32 @@ public class WebSteps2Test {
     // switchToFrame
 
     @Test
-    public void switchToWindowShouldSwitchToNewFrame() {
+    public void switchToFrameShouldSwitchToNewFrame() {
         BddVariable id = new BddVariable("myId");
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
-        WebDriver webDriver = Mockito.mock(WebDriver.class);
         WebDriver.TargetLocator locator = Mockito.mock(WebDriver.TargetLocator.class);
         Mockito.doCallRealMethod().when(mockedSteps).switchToFrame(id);
-        Mockito.doReturn(webDriver).when(mockedSteps).getWebDriver();
-        Mockito.doReturn(locator).when(webDriver).switchTo();
+        Mockito.doReturn(locator).when(mockedWebDriver).switchTo();
         mockedSteps.switchToFrame(id);
         Mockito.verify(locator).frame(id.toString());
+    }
+
+    @Test
+    public void switchToFrameShouldCallSwitchToDefaultContent() {
+        BddVariable id = new BddVariable("myId");
+        WebDriver.TargetLocator locator = Mockito.mock(WebDriver.TargetLocator.class);
+        Mockito.doCallRealMethod().when(mockedSteps).switchToFrame(id);
+        Mockito.doReturn(locator).when(mockedWebDriver).switchTo();
+        mockedSteps.switchToFrame(id);
+        Mockito.verify(mockedSteps).switchToDefaultContent();
     }
 
     // switchToDefaultContent
 
     @Test
     public void switchToDefaultContentShouldSwitchToDefaultContent() {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
-        WebDriver webDriver = Mockito.mock(WebDriver.class);
         WebDriver.TargetLocator locator = Mockito.mock(WebDriver.TargetLocator.class);
         Mockito.doCallRealMethod().when(mockedSteps).switchToDefaultContent();
-        Mockito.doReturn(webDriver).when(mockedSteps).getWebDriver();
-        Mockito.doReturn(locator).when(webDriver).switchTo();
+        Mockito.doReturn(locator).when(mockedWebDriver).switchTo();
         mockedSteps.switchToDefaultContent();
         Mockito.verify(locator).defaultContent();
     }
@@ -286,7 +301,6 @@ public class WebSteps2Test {
 
     @Test
     public void openIfNotAlreadyOpenedShouldCallOpen() {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).openIfNotAlreadyOpened();
         mockedSteps.openIfNotAlreadyOpened();
         Mockito.verify(mockedSteps).open();
@@ -294,7 +308,6 @@ public class WebSteps2Test {
 
     @Test
     public void openIfNotAlreadyOpenedShouldNotCallOpen() {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).openIfNotAlreadyOpened();
         Mockito.doCallRealMethod().when(mockedSteps).setUrlHasBeenOpened(Mockito.anyBoolean());
         mockedSteps.setUrlHasBeenOpened(true);
@@ -312,7 +325,7 @@ public class WebSteps2Test {
         assertThat(actual, is(equalTo(expected)));
     }
 
-    // setWebDriver
+    // setWebDriver(BddVariable)
 
     @Test
     public final void setWebDriverShouldHaveBddParamAnnotation() throws NoSuchMethodException {
@@ -322,7 +335,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldSetWebDriver() {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         mockedSteps.setWebDriver(browserVariable);
         Mockito.verify(mockedSteps).setWebDriverRunner();
@@ -330,7 +342,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldInvokeGetRemoteDriverWhenRemoteDriverUrlIsSet() throws Exception {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         Mockito.doReturn("URL").when(mockedSteps).getRemoteDriverUrl();
         mockedSteps.setWebDriver(browserVariable);
@@ -339,7 +350,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldInvokeSetWebDriverRunnerWhenRemoteDriverUrlIsSet() throws Exception {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         Mockito.doReturn("URL").when(mockedSteps).getRemoteDriverUrl();
         mockedSteps.setWebDriver(browserVariable);
@@ -348,7 +358,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldInvokeSetSizeWhenRemoteDriverUrlIsSet() throws Exception {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         Mockito.doReturn("URL").when(mockedSteps).getRemoteDriverUrl();
         mockedSteps.setWebDriver(browserVariable);
@@ -357,7 +366,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldNotInvokeGetRemoteDriverWhenRemoteDriverUrlIsNull() throws Exception {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         Mockito.doReturn(null).when(mockedSteps).getRemoteDriverUrl();
         mockedSteps.setWebDriver(browserVariable);
@@ -366,7 +374,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldNotInvokeGetRemoteDriverWhenRemoteDriverUrlIsEmpty() throws Exception {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         Mockito.doReturn("").when(mockedSteps).getRemoteDriverUrl();
         mockedSteps.setWebDriver(browserVariable);
@@ -375,7 +382,6 @@ public class WebSteps2Test {
 
     @Test
     public final void setWebDriverShouldInvokeSetSize() {
-        WebSteps mockedSteps = Mockito.mock(WebSteps.class);
         Mockito.doCallRealMethod().when(mockedSteps).setWebDriver(Mockito.any(BddVariable.class));
         mockedSteps.setWebDriver(browserVariable);
         Mockito.verify(mockedSteps).setSize();
@@ -389,6 +395,58 @@ public class WebSteps2Test {
     @Test
     public final void setWebDriverShouldAcceptNullAsDriver() {
         steps.setWebDriver(null);
+    }
+
+    // setWebDriver()
+
+    @Test
+    public final void setWebDriverShouldCallSetWebDriver() {
+        String driverString = "MY_DRIVER";
+        BddVariable driver = new BddVariable(driverString);
+        Mockito.doCallRealMethod().when(mockedSteps).setWebDriver();
+        Mockito.doReturn(null).when(mockedSteps).getWebDriver();
+        Mockito.doReturn(driverString).when(mockedSteps).getBrowserParam();
+        mockedSteps.setWebDriver();
+        Mockito.verify(mockedSteps).setWebDriver(driver);
+    }
+
+    @Test
+    public final void setWebDriverShouldNotCallSetWebDriverIfAlreadySet() {
+        Mockito.doCallRealMethod().when(mockedSteps).setWebDriver();
+        mockedSteps.setWebDriver();
+        Mockito.verify(mockedSteps, Mockito.never()).setWebDriver(Mockito.any(BddVariable.class));
+    }
+
+    // clickElement
+
+    @Test
+    public final void clickElementShouldCallScrollTo() {
+        BddVariable selector = new BddVariable("ID");
+        SelenideElement element = Mockito.mock(SelenideElement.class);
+        Mockito.doCallRealMethod().when(mockedSteps).clickElement(selector);
+        Mockito.doReturn(element).when(mockedSteps).findElement(selector);
+        mockedSteps.clickElement(selector);
+        Mockito.verify(element).scrollTo();
+    }
+
+    @Test
+    public final void clickElementShouldCallClick() {
+        BddVariable selector = new BddVariable("ID");
+        SelenideElement element = Mockito.mock(SelenideElement.class);
+        Mockito.doCallRealMethod().when(mockedSteps).clickElement(selector);
+        Mockito.doReturn(element).when(mockedSteps).findElement(selector);
+        mockedSteps.clickElement(selector);
+        Mockito.verify(element).click();
+    }
+
+    @Test
+    public final void clickElementShouldCallSleep() {
+        BddVariable selector = new BddVariable("ID");
+        SelenideElement element = Mockito.mock(SelenideElement.class);
+        Mockito.doCallRealMethod().when(mockedSteps).clickElement(selector);
+        Mockito.doReturn(element).when(mockedSteps).findElement(selector);
+        mockedSteps.clickElement(selector);
+        Mockito.verify(mockedSteps).sleep(WebSteps.SLEEP_AFTER_CLICK);
     }
 
 }

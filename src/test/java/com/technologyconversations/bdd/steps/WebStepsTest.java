@@ -263,34 +263,6 @@ public class WebStepsTest {
         assertThat(WebSteps.class.getMethod("open", BddVariable.class), is(notNullValue()));
     }
 
-    // clickElement
-
-    @Test
-    public final void clickElementShouldUseIdSelectorIfSelectorItStartsWithSharp() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(LINK_ID);
-        steps.checkTitle(pageTitle);
-    }
-
-    @Test
-    public final void clickElementShouldUseCssSelectorIfSelectorItStartsWithDot() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(new BddVariable(".linkClass"));
-        steps.checkTitle(pageTitle);
-    }
-
-    @Test
-    public final void clickElementShouldUseIdAsSelectorIfSelectorStartsWithLetter() {
-        steps.checkTitle(indexTitle);
-        steps.clickElement(LINK_ID);
-        steps.checkTitle(pageTitle);
-    }
-
-    @Test
-    public final void clickElementShouldUseBddVariablesAsArguments() throws NoSuchMethodException {
-        assertThat(WebSteps.class.getMethod("clickElement", BddVariable.class), is(notNullValue()));
-    }
-
     // findElement
 
     @Test

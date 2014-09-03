@@ -145,7 +145,7 @@ public class WebSteps {
         return webDriver;
     }
 
-    private String getBrowserParam() {
+    protected String getBrowserParam() {
         String browser = "firefox";
         if (getParams().containsKey("browser")) {
             browser = getParams().get("browser");
@@ -236,12 +236,7 @@ public class WebSteps {
     public void clickElement(final BddVariable selector) {
         SelenideElement element = findElement(selector);
         element.scrollTo();
-        // TODO Figure out a better way
-        try {
-            Thread.sleep(SLEEP_AFTER_CLICK);
-        } catch (InterruptedException e) {
-            getLogger().fine(e.getMessage());
-        }
+        sleep(SLEEP_AFTER_CLICK);
         element.click();
     }
 
@@ -424,6 +419,7 @@ public class WebSteps {
     @BddDescription("Switches to a separate window or iFrame")
     @When("Web switches to frame $id")
     public void switchToFrame(final BddVariable id) {
+        switchToDefaultContent();
         getWebDriver().switchTo().frame(id.toString());
     }
 
@@ -583,7 +579,17 @@ public class WebSteps {
     }
 
     protected void setWebDriverRunner() {
-        WebDriverRunner.setWebDriver(this.getWebDriver());
+        if (this.getWebDriver() != null) {
+            WebDriverRunner.setWebDriver(this.getWebDriver());
+        }
+    }
+
+    protected void sleep(final long timeout) {
+        try {
+            Thread.sleep(timeout);
+        } catch (InterruptedException e) {
+            getLogger().fine(e.getMessage());
+        }
     }
 
 }

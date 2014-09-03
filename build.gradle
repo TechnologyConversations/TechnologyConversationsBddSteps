@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     compile 'org.jbehave:jbehave-core:3.9'
-    compile 'com.codeborne:selenide:2.8'
+    compile 'com.codeborne:selenide:2.10'
     compile 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.37.1'
     compile 'com.opera:operadriver:1.5'
     compile 'com.github.detro.ghostdriver:phantomjsdriver:1.0.4'
