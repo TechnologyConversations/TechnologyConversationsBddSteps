@@ -423,6 +423,11 @@ public class WebSteps {
         getWebDriver().switchTo().frame(id.toString());
     }
 
+    @BddDescription("Sets text of an element to a given variable")
+    public void setElementTextToVariable(final BddVariable selector, final BddVariable variableName) {
+        CommonSteps.addVariable(variableName.toString(), findElement(selector).getText());
+    }
+
     @BddDescription("Switches to the default content")
     @When("Web switches to default content")
     public void switchToDefaultContent() {

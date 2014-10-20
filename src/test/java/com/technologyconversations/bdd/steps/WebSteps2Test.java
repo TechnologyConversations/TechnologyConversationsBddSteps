@@ -449,4 +449,19 @@ public class WebSteps2Test {
         Mockito.verify(mockedSteps).sleep(WebSteps.SLEEP_AFTER_CLICK);
     }
 
+    // setElementTextToVariable
+
+    @Test
+    public final void setElementTextToVariableShouldSetElementTextToVariable() {
+        BddVariable selector = new BddVariable("ID");
+        BddVariable variableName = new BddVariable("myVariable");
+        String expectedText = "THIS IS SOME TEXT";
+        SelenideElement element = Mockito.mock(SelenideElement.class);
+        Mockito.doReturn(expectedText).when(element).getText();
+        Mockito.doReturn(element).when(mockedSteps).findElement(selector);
+        Mockito.doCallRealMethod().when(mockedSteps).setElementTextToVariable(selector, variableName);
+        mockedSteps.setElementTextToVariable(selector, variableName);
+        assertThat(CommonSteps.getVariable(variableName.toString()), is(equalTo(expectedText)));
+    }
+
 }
