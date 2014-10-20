@@ -424,6 +424,7 @@ public class WebSteps {
     }
 
     @BddDescription("Sets text of an element to a given variable")
+    @When("Web element $selector text is set to variable $variableName")
     public void setElementTextToVariable(final BddVariable selector, final BddVariable variableName) {
         CommonSteps.addVariable(variableName.toString(), findElement(selector).getText());
     }
