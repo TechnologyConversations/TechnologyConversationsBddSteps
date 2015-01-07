@@ -16,7 +16,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.technologyconversations'
-version = '1.0.0'
+version = '1.0.1'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
@@ -50,6 +50,7 @@ bintray {
     key = '829b6769942939daa1333b5e523fdc55205cfdad'
     dryRun = false
     publish = true
+    configurations = ['archives']
     pkg {
         repo = 'technology-conversations'
         name = 'bdd-steps'
@@ -61,7 +62,8 @@ bintray {
         labels = ['BDD', 'Testing', 'Development']
         publicDownloadNumbers = false
         version {
-            name = '1.0.0'
+            name = project.version
+            vcsTag = project.version
         }
     }
 }
