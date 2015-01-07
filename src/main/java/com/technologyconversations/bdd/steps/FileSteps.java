@@ -99,7 +99,7 @@ public class FileSteps {
     private void validateFile(final String path, final boolean shouldExist) throws InterruptedException {
         File file = new File(path);
         Date date = new Date();
-        boolean valid = (file.exists() == shouldExist);
+        boolean valid = file.exists() == shouldExist;
         while (!valid && (new Date().getTime() - date.getTime()) < this.getTimeout()) {
             if (file.exists() == shouldExist) {
                 valid = true;

@@ -7,9 +7,7 @@ import java.lang.reflect.Type;
 public class BddVariableConverter implements ParameterConverter {
 
     public final boolean accept(final Type type) {
-//        return (type instanceof Class<?>
-//                && BddVariable.class.isAssignableFrom((Class<?>) type));
-        return (BddVariable.class.isAssignableFrom((Class<?>) type));
+        return BddVariable.class.isAssignableFrom((Class<?>) type);
     }
 
     public final Object convertValue(final String value, final Type type) {

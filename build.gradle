@@ -8,8 +8,9 @@ buildscript {
 }
 apply plugin: 'java'
 apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
+//apply plugin: 'findbugs'
 apply plugin: 'pmd'
+
 apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
