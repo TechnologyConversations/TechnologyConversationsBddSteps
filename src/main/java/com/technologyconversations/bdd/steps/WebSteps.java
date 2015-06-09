@@ -34,6 +34,7 @@ public class WebSteps {
 
     protected static final int MILLISECONDS_IN_SECOND = 1000;
     protected static final int SLEEP_AFTER_CLICK = 100;
+    protected static final int REPEAT_TIMES = 10;
 
     // TODO Add methods that use selector with index
     // TODO Add methods that use findAll selector ($$)
@@ -296,7 +297,7 @@ public class WebSteps {
     public void checkTitle(final BddVariable text) {
         String expected = text.toString();
         boolean isCorrect = false;
-        for (int counter = 0; counter < 10; counter++) {
+        for (int counter = 0; counter < REPEAT_TIMES; counter++) {
             if (title().equals(expected)) {
                 isCorrect = true;
                 break;
@@ -312,7 +313,7 @@ public class WebSteps {
     public void checkTitleContains(final BddVariable text) {
         String expected = text.toString();
         boolean isCorrect = false;
-        for (int counter = 0; counter < 10; counter++) {
+        for (int counter = 0; counter < REPEAT_TIMES; counter++) {
             if (title().contains(expected)) {
                 isCorrect = true;
                 break;
