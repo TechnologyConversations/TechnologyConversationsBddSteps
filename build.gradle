@@ -15,6 +15,7 @@ apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
 group = 'com.technologyconversations'
 version = '1.0.1'
